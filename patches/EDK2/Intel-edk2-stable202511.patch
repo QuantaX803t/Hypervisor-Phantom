@@ -221,15 +221,15 @@ index 3d64ac9..0836fda 100644
      push    rax
  %ifdef NO_ABSOLUTE_RELOCS_IN_TEXT
 diff --git a/BaseTools/Source/C/EfiRom/EfiRom.c b/BaseTools/Source/C/EfiRom/EfiRom.c
-index fa7bf0e..ac327c9 100644
+index fa7bf0e..a51656f 100644
 --- a/BaseTools/Source/C/EfiRom/EfiRom.c
 +++ b/BaseTools/Source/C/EfiRom/EfiRom.c
-@@ -75,7 +75,7 @@ Returns:
-   //
-   if (mOptions.DumpOption == 1) {
-     if (mOptions.FileList != NULL) {
--      if ((Ptr0 = strstr ((CONST CHAR8 *) mOptions.FileList->FileName, DEFAULT_OUTPUT_EXTENSION)) != NULL) {
-+      if ((Ptr0 = strstr (( CHAR8 *) mOptions.FileList->FileName, DEFAULT_OUTPUT_EXTENSION)) != NULL) {
-         DumpImage (mOptions.FileList);
-         goto BailOut;
-       } else {
+@@ -44,7 +44,7 @@ Returns:
+   FILE_LIST *FList;
+   UINT32    TotalSize;
+   UINT32    Size;
+-  CHAR8     *Ptr0;
++  CONST CHAR8     *Ptr0;
+ 
+   SetUtilityName(UTILITY_NAME);
+ 
