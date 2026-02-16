@@ -1,25 +1,74 @@
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
-index 0775aa9..2794a62 100644
+index 0775aa9..1fd2402 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
 +++ b/MdeModulePkg/MdeModulePkg.dec
-@@ -1897,7 +1897,7 @@
+@@ -1897,19 +1897,19 @@
  
    ## Null-terminated Unicode string of the firmware vendor name that is the default name filled into the EFI System Table.
    # @Prompt Firmware vendor.
 -  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"EDK II"|VOID*|0x00010050
-+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"Intel Corporation"|VOID*|0x00010050
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor|L"EDK II"|VOID*|0x00010050 # Dynamically modified via 'edk2.sh'
  
    ## Firmware revision that is the default revision filled into the EFI System Table.
    # @Prompt Firmware revision.
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareRevision|0x00010000|UINT32|0x00010051
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareRevision|0x00010000|UINT32|0x00010051 # Dynamically modified via 'edk2.sh'
+ 
+   ## Null-terminated Unicode string that describes the firmware version.
+   # @Prompt Firmware version string.
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L""|VOID*|0x00010052
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L""|VOID*|0x00010052 # Dynamically modified via 'edk2.sh'
+ 
+   ## Null-terminated Unicode string that contains the date the firmware was released
+   # @Prompt Firmware release data string.
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareReleaseDateString|L""|VOID*|0x00010053
++  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareReleaseDateString|L""|VOID*|0x00010053 # Dynamically modified via 'edk2.sh'
+ 
+   ## PcdStatusCodeMemorySize is used when PcdStatusCodeUseMemory is set to true.
+   #  (PcdStatusCodeMemorySize * KBytes) is the total taken memory size.<BR><BR>
+@@ -2125,7 +2125,7 @@
+ 
+   ## Default OEM ID for ACPI table creation, its length must be 0x6 bytes to follow ACPI specification.
+   # @Prompt Default OEM ID for ACPI table creation.
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemId|"INTEL "|VOID*|0x30001034
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemId|"INTEL "|VOID*|0x30001034 # Dynamically modified via 'edk2.sh'
+ 
+   ## Default OEM Table ID for ACPI table creation, it is "EDK2    ".
+   #  According to ACPI specification, this field is particularly useful when
 @@ -2133,7 +2133,7 @@
    #  The OEM assigns each dissimilar table a new OEM Table ID.
    #  This PCD is ignored for definition block.
    # @Prompt Default OEM Table ID for ACPI table creation.
 -  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemTableId|0x20202020324B4445|UINT64|0x30001035
-+  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemTableId|0x2020207076525F55|UINT64|0x30001035
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemTableId|0x2020207076525F55|UINT64|0x30001035 # Dynamically modified via 'edk2.sh'
  
    ## Default OEM Revision for ACPI table creation.
    #  According to ACPI specification, for LoadTable() opcode, the OS can also
+@@ -2141,21 +2141,21 @@
+   #  revision Definition Block of the same OEM Table ID and load it instead.
+   #  This PCD is ignored for definition block.
+   # @Prompt Default OEM Revision for ACPI table creation.
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemRevision|0x00000002|UINT32|0x30001036
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemRevision|0x00000002|UINT32|0x30001036 # Dynamically modified via 'edk2.sh'
+ 
+   ## Default Creator ID for ACPI table creation.
+   #  According to ACPI specification, for tables containing Definition Blocks,
+   #  this is the ID for the ASL Compiler.
+   #  This PCD is ignored for definition block.
+   # @Prompt Default Creator ID for ACPI table creation.
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorId|0x20202020|UINT32|0x30001037
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorId|0x20202020|UINT32|0x30001037 # Dynamically modified via 'edk2.sh'
+ 
+   ## Default Creator Revision for ACPI table creation.
+   #  According to ACPI specification, for tables containing Definition Blocks,
+   #  this is the revision for the ASL Compiler.
+   #  This PCD is ignored for definition block.
+   # @Prompt Default Creator Revision for ACPI table creation.
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorRevision|0x01000013|UINT32|0x30001038
++  gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultCreatorRevision|0x01000013|UINT32|0x30001038 # Dynamically modified via 'edk2.sh'
+ 
+   ## Indicates if to set NX for stack.<BR><BR>
+   #  For the DxeIpl and the DxeCore are both X64, set NX for stack feature also require PcdDxeIplBuildPageTables be TRUE.<BR>
 diff --git a/OvmfPkg/Include/IndustryStandard/Q35MchIch9.h b/OvmfPkg/Include/IndustryStandard/Q35MchIch9.h
 index db828d3..b958e41 100644
 --- a/OvmfPkg/Include/IndustryStandard/Q35MchIch9.h
@@ -60,10 +109,10 @@ index 2fe6ab3..2d697df 100644
          );
        DEBUG ((DEBUG_INFO, "%a: %s = %s\n", __func__, VariableName, Translated));
 diff --git a/OvmfPkg/QemuVideoDxe/Driver.c b/OvmfPkg/QemuVideoDxe/Driver.c
-index 6feca83..94dfb3e 100644
+index 6feca83..d37f212 100644
 --- a/OvmfPkg/QemuVideoDxe/Driver.c
 +++ b/OvmfPkg/QemuVideoDxe/Driver.c
-@@ -41,31 +41,31 @@ QEMU_VIDEO_CARD  gQemuVideoCardList[] = {
+@@ -41,19 +41,19 @@ QEMU_VIDEO_CARD  gQemuVideoCardList[] = {
      L"Cirrus 5446"
    },{
      PCI_CLASS_DISPLAY_VGA,
@@ -86,21 +135,6 @@ index 6feca83..94dfb3e 100644
      0x0100,
      QEMU_VIDEO_BOCHS,
      L"QEMU QXL VGA"
-   },{
-     PCI_CLASS_DISPLAY_VGA,
--    0x1af4,
--    0x1050,
-+    0x8086, // 0x1af4,
-+    0x0416, // 0x1050,
-     QEMU_VIDEO_BOCHS_MMIO,
-     L"QEMU VirtIO VGA"
-   },{
-     PCI_CLASS_DISPLAY_VGA,
--    0x15ad,
-+    0x8086, // 0x15ad,
-     0x0405,
-     QEMU_VIDEO_VMWARE_SVGA,
-     L"QEMU VMWare SVGA"
 diff --git a/OvmfPkg/SmbiosPlatformDxe/SmbiosPlatformDxe.c b/OvmfPkg/SmbiosPlatformDxe/SmbiosPlatformDxe.c
 index e929da6..56d68aa 100644
 --- a/OvmfPkg/SmbiosPlatformDxe/SmbiosPlatformDxe.c
@@ -164,21 +198,8 @@ index f7bf771..134705d 100644
  
  #pragma pack(1)
  typedef struct {
-diff --git a/ShellPkg/ShellPkg.dec b/ShellPkg/ShellPkg.dec
-index 45954fc..e521908 100644
---- a/ShellPkg/ShellPkg.dec
-+++ b/ShellPkg/ShellPkg.dec
-@@ -120,7 +120,7 @@
-   gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|3|UINT8|0x00000008
- 
-   ## Unicode string of the shell supplier
--  gEfiShellPkgTokenSpaceGuid.PcdShellSupplier|L"EDK II"|VOID*|0x00000010
-+  gEfiShellPkgTokenSpaceGuid.PcdShellSupplier|L"Intel Corporation"|VOID*|0x00000010
- 
-   ## Do extended decode of USB for determining media type
-   gEfiShellPkgTokenSpaceGuid.PcdUsbExtendedDecode|TRUE|BOOLEAN|0x00000011
 diff --git a/UefiCpuPkg/Library/CpuExceptionHandlerLib/X64/ExceptionHandlerAsm.nasm b/UefiCpuPkg/Library/CpuExceptionHandlerLib/X64/ExceptionHandlerAsm.nasm
-index 3d64ac9..9c3f01a 100644
+index 3d64ac9..0836fda 100644
 --- a/UefiCpuPkg/Library/CpuExceptionHandlerLib/X64/ExceptionHandlerAsm.nasm
 +++ b/UefiCpuPkg/Library/CpuExceptionHandlerLib/X64/ExceptionHandlerAsm.nasm
 @@ -57,7 +57,7 @@ ALIGN   8
@@ -195,7 +216,7 @@ index 3d64ac9..9c3f01a 100644
  
  HookAfterStubHeaderBegin:
 -    push    strict dword 0      ; 0 will be fixed
-+    push    strict qword 0      ; 0 will be fixed
++    push    strict qword 0      ; 0 REMOVE THIS PATCH WHEN UPDATING TO RELEASE 'edk2-stable202602'
  VectorNum:
      push    rax
  %ifdef NO_ABSOLUTE_RELOCS_IN_TEXT
