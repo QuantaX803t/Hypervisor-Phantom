@@ -40,7 +40,7 @@ acquire_edk2_source() {
       || { fmtr::fatal "Failed to clone repository!"; exit 1; }
     cd "$EDK2_TAG" || { fmtr::fatal "Missing '$EDK2_TAG' directory!"; exit 1; }
     fmtr::info "Initializing repository submodules... (be patient!)"
-    git submodule update --init &>>"$LOG_FILE" \
+    git submodule update --init --jobs $(nproc) &>>"$LOG_FILE" \
       || { fmtr::fatal "Failed to initialize all repository submodules!"; exit 1; }
     patch_ovmf
   }
