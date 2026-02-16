@@ -91,24 +91,55 @@ patch_ovmf() {
 
 
 
-  # --- Phase 2: SMBIOS Spoofing ---
-  fmtr::info "Spoofing SMBIOS metadata..."
+  # --- Phase 2: Firmware Spoofing ---
+  fmtr::info "Modifying firmware metadata..."
+
+  uhex() {
+    local bytes="$1" v="$2" width=$((bytes * 2))
+    case "$v" in
+      0x*|0X*) printf "0x%0${width}X" "$((v))" ;;
+      *.*)     IFS='.' read -r a b _ <<< "$v"; b="${b:-0}"
+              if (( bytes == 4 )); then printf "0x%0${width}X" "$(( (a << 16) | b ))"
+              else                      printf "0x%0${width}X" "$(( (a << 48) | (b << 32) ))"
+              fi ;;
+      [0-9]*)  printf "0x%0${width}X" "$v" ;;
+      *)       printf "%-${bytes}s" "$v" | LC_ALL=C od -An -t x1 -v \
+                | awk '{for(i=NF;i>=1;i--) printf $i} END{print ""}' \
+                | sed 's/^/0x/' ;;
+    esac
+  }
 
   BIOS_VENDOR="$(</sys/class/dmi/id/bios_vendor)"
   BIOS_VERSION="$(</sys/class/dmi/id/bios_version)"
   BIOS_DATE="$(</sys/class/dmi/id/bios_date)"
+  BIOS_REVISION="$(uhex 4 "$($ROOT_ESC dmidecode --string bios-revision)")"
+
+  t=/sys/firmware/acpi/tables/FACP
+
+  OEM_Revision="$(uhex 4 "$(LC_ALL=C $ROOT_ESC od -An -t u4 -j 24 -N4 "$t" | tr -d ' ')")"
+  Creator_Revision="$(uhex 4 "$(LC_ALL=C $ROOT_ESC od -An -t u4 -j 32 -N4 "$t" | tr -d ' ')")"
+
+  OEM_Table_ID="$(uhex 8 "$(LC_ALL=C $ROOT_ESC dd if="$t" bs=1 skip=16 count=8 status=none | tr '\0' ' ')")"
+  Creator_ID="$(uhex 4 "$(LC_ALL=C $ROOT_ESC dd if="$t" bs=1 skip=28 count=4 status=none | tr '\0' ' ')")"
+  OEMID="$(LC_ALL=C $ROOT_ESC dd if="$t" bs=1 skip=10 count=6 status=none | tr '\0' ' ')"
 
   sed -i \
-    -e 's|VendStr = L"unknown";|VendStr = L"'"$BIOS_VENDOR"'";|' \
-    -e 's|VersStr = L"unknown";|VersStr = L"'"$BIOS_VERSION"'";|' \
-    -e 's|DateStr = L"02/02/2022";|DateStr = L"'"$BIOS_DATE"'";|' \
+    -e 's@VendStr = L"unknown";@VendStr = L"'"$BIOS_VENDOR"'";@' \
+    -e 's@VersStr = L"unknown";@VersStr = L"'"$BIOS_VERSION"'";@' \
+    -e 's@DateStr = L"02/02/2022";@DateStr = L"'"$BIOS_DATE"'";@' \
     OvmfPkg/SmbiosPlatformDxe/SmbiosPlatformDxe.c
 
-  sed -i \
-    -e 's|EFI Development Kit II / OVMF|'"$BIOS_VENDOR"'|' \
-    -e 's|"0\.0\.0\\0"|"'"$BIOS_VERSION"'\\0"|' \
-    -e 's|"02/06/2015\\0"|"'"$BIOS_DATE"'\\0"|' \
-    OvmfPkg/Bhyve/SmbiosPlatformDxe/SmbiosPlatformDxe.c
+  sed -E -i \
+    -e 's@(PcdFirmwareVendor)\|L"EDK II"\|@\1|L"'"$BIOS_VENDOR"'"|@' \
+    -e 's@(PcdFirmwareRevision)\|0x00010000\|@\1|'"$BIOS_REVISION"'|@' \
+    -e 's@(PcdFirmwareVersionString)\|L""\|@\1|L"'"$BIOS_VERSION"'"|@' \
+    -e 's@(PcdFirmwareReleaseDateString)\|L""\|@\1|L"'"$BIOS_DATE"'"|@' \
+    -e 's@(PcdAcpiDefaultOemId)\|"INTEL "\|@\1|"'$OEMID'"|@' \
+    -e 's@(PcdAcpiDefaultOemTableId)\|0x20202020324B4445\|@\1|'"$OEM_Table_ID"'|@' \
+    -e 's@(PcdAcpiDefaultOemRevision)\|0x00000002\|@\1|'"$OEM_Revision"'|@' \
+    -e 's@(PcdAcpiDefaultCreatorId)\|0x20202020\|@\1|'"$Creator_ID"'|@' \
+    -e 's@(PcdAcpiDefaultCreatorRevision)\|0x01000013\|@\1|'"$Creator_Revision"'|@' \
+    MdeModulePkg/MdeModulePkg.dec
 
 
 
@@ -179,10 +210,6 @@ patch_ovmf() {
 # Build OVMF w/SB & TPM
 ################################################################################
 build_ovmf() {
-  local efivars_json
-  local -r EFI_GLOBAL_VARIABLE=8be4df61-93ca-11d2-aa0d-00e098032b8c
-  local -r EFI_IMAGE_SECURITY_DATABASE_GUID=d719b2cb-3d3a-4596-a3bc-dad00e67656f
-
   # --- Phase 1: Build Environment & Compilation ---
   fmtr::info "Initializing build environment..."
 
@@ -198,18 +225,15 @@ build_ovmf() {
 
   build -p OvmfPkg/OvmfPkgX64.dsc -a X64 -t GCC5 -b RELEASE -n 0 -s \
     -D SECURE_BOOT_ENABLE=TRUE -D SMM_REQUIRE=TRUE \
-    -D TPM1_ENABLE=TRUE -D TPM2_ENABLE=TRUE &>>"$LOG_FILE" || {
+    -D TPM1_ENABLE=TRUE        -D TPM2_ENABLE=TRUE &>>"$LOG_FILE" || {
       fmtr::fatal "OVMF build failed"; return 1;
     }
 
-  # --- Phase 2: Artifact Conversion ---
-  local f; for f in CODE VARS; do
-    $ROOT_ESC "$OUT_DIR/emulator/bin/qemu-img" convert -f raw -O qcow2 \
-      "Build/OvmfX64/RELEASE_GCC5/FV/OVMF_${f}.fd" \
-      "$OUT_DIR/firmware/OVMF_${f}.qcow2" || return 1
-  done
+  # --- Phase 2: Variable Extraction & NVRAM Injection ---
+  local efivars_json
+  local -r EFI_GLOBAL_VARIABLE=8be4df61-93ca-11d2-aa0d-00e098032b8c
+  local -r EFI_IMAGE_SECURITY_DATABASE_GUID=d719b2cb-3d3a-4596-a3bc-dad00e67656f
 
-  # --- Phase 3: Variable Extraction & NVRAM Injection ---
   efivars_json="$(mktemp)" || return 1
   trap 'rm -f "$efivars_json"' RETURN
 
@@ -240,11 +264,13 @@ build_ovmf() {
     printf '\n    ]\n}\n'
   } > "$efivars_json"
 
-  # --- Phase 4: NVRAM Injection ---
   fmtr::info "Populating OVMF NVRAM..."
+
+  $ROOT_ESC cp "Build/OvmfX64/RELEASE_GCC5/FV/OVMF_CODE.fd" "$OUT_DIR/firmware/OVMF_CODE.fd" || return 1
+
   $ROOT_ESC virt-fw-vars \
-    --input "$OUT_DIR/firmware/OVMF_VARS.qcow2" \
-    --output "$OUT_DIR/firmware/OVMF_VARS.qcow2" \
+    --input "Build/OvmfX64/RELEASE_GCC5/FV/OVMF_VARS.fd" \
+    --output "$OUT_DIR/firmware/OVMF_VARS.fd" \
     --secure-boot \
     --set-json "$efivars_json" &>>"$LOG_FILE" || {
       fmtr::fatal "NVRAM injection failed"; return 1;
