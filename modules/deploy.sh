@@ -322,13 +322,13 @@ configure_xml() {
         --xml "./os/loader/@readonly=yes"
         --xml "./os/loader/@secure=yes"
         --xml "./os/loader/@type=pflash"
-        --xml "./os/loader/@format=qcow2"
-        --xml "./os/loader=/opt/AutoVirt/firmware/OVMF_CODE.qcow2"
+        --xml "./os/loader/@format=raw"
+        --xml "./os/loader=/opt/AutoVirt/firmware/OVMF_CODE.fd"
 
         # NVRAM / OVMF_VARS
-        --xml "./os/nvram/@template=/opt/AutoVirt/firmware/OVMF_VARS.qcow2"
-        --xml "./os/nvram/@templateFormat=qcow2"
-        --xml "./os/nvram/@format=qcow2"
+        --xml "./os/nvram/@template=/opt/AutoVirt/firmware/OVMF_VARS.fd"
+        --xml "./os/nvram/@templateFormat=raw"
+        --xml "./os/nvram/@format=raw"
 
         # Boot order & menu
         --boot "cdrom,hd,menu=on"
