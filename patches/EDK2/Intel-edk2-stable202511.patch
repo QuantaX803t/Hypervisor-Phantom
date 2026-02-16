@@ -1,28 +1,3 @@
-diff --git a/BaseTools/Source/C/Makefiles/header.makefile b/BaseTools/Source/C/Makefiles/header.makefile
-index 53e73ab..c23e1b2 100644
---- a/BaseTools/Source/C/Makefiles/header.makefile
-+++ b/BaseTools/Source/C/Makefiles/header.makefile
-@@ -158,17 +158,17 @@ BUILD_OPTFLAGS = -O2 $(EXTRA_OPTFLAGS)
- 
- ifeq ($(DARWIN),Darwin)
- # assume clang or clang compatible flags on OS X
--CFLAGS = -MD -fshort-wchar -fno-strict-aliasing -Wall -Werror \
-+CFLAGS = -MD -fshort-wchar -fno-strict-aliasing -w \
- -Wno-deprecated-declarations -Wno-self-assign -Wno-unused-result -nostdlib -g
- else
- ifneq ($(CLANG),)
- CFLAGS = -MD -fshort-wchar -fno-strict-aliasing -fwrapv \
---fno-delete-null-pointer-checks -Wall -Werror \
-+-fno-delete-null-pointer-checks -w \
- -Wno-deprecated-declarations -Wno-self-assign \
- -Wno-unused-result -nostdlib -g
- else
- CFLAGS = -MD -fshort-wchar -fno-strict-aliasing -fwrapv \
---fno-delete-null-pointer-checks -Wall -Werror \
-+-fno-delete-null-pointer-checks -w \
- -Wno-deprecated-declarations -Wno-stringop-truncation -Wno-restrict \
- -Wno-unused-result -nostdlib -g
- endif
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
 index 0775aa9..1fd2402 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
@@ -245,3 +220,24 @@ index 3d64ac9..0836fda 100644
  VectorNum:
      push    rax
  %ifdef NO_ABSOLUTE_RELOCS_IN_TEXT
+diff --git a/BaseTools/Source/C/EfiRom/EfiRom.c b/BaseTools/Source/C/EfiRom/EfiRom.c
+index fa7bf0e..6e903b3 100644
+--- a/BaseTools/Source/C/EfiRom/EfiRom.c
++++ b/BaseTools/Source/C/EfiRom/EfiRom.c
+@@ -44,7 +44,6 @@ Returns:
+   FILE_LIST *FList;
+   UINT32    TotalSize;
+   UINT32    Size;
+-  CHAR8     *Ptr0;
+ 
+   SetUtilityName(UTILITY_NAME);
+ 
+@@ -75,7 +74,7 @@ Returns:
+   //
+   if (mOptions.DumpOption == 1) {
+     if (mOptions.FileList != NULL) {
+-      if ((Ptr0 = strstr ((CONST CHAR8 *) mOptions.FileList->FileName, DEFAULT_OUTPUT_EXTENSION)) != NULL) {
++      if (strstr ((CONST CHAR8 *) mOptions.FileList->FileName, DEFAULT_OUTPUT_EXTENSION) != NULL) {
+         DumpImage (mOptions.FileList);
+         goto BailOut;
+       } else {
