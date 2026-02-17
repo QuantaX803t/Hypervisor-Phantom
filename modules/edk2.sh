@@ -36,12 +36,15 @@ acquire_edk2_source() {
 
   clone_repo() {
     fmtr::info "Cloning '$EDK2_TAG' from '$EDK2_URL'..."
-    git clone --depth=1 --branch "$EDK2_TAG" "$EDK2_URL" "$EDK2_TAG" &>>"$LOG_FILE" \
-      || { fmtr::fatal "Failed to clone repository!"; exit 1; }
+    git clone --depth=1 --branch="$EDK2_TAG" "$EDK2_URL" "$EDK2_TAG" &>>"$LOG_FILE" \
+    || { fmtr::fatal "Clone failed!"; exit 1; }
+
     cd "$EDK2_TAG" || { fmtr::fatal "Missing '$EDK2_TAG' directory!"; exit 1; }
-    fmtr::info "Initializing repository submodules... (be patient!)"
-    git submodule update --init --jobs $(nproc) &>>"$LOG_FILE" \
-      || { fmtr::fatal "Failed to initialize all repository submodules!"; exit 1; }
+
+    fmtr::info "Initializing submodules..."
+    git submodule update --init --depth=1 --jobs="$(nproc)" &>>"$LOG_FILE" \
+      || { fmtr::fatal "Submodule update failed!"; exit 1; }
+
     patch_ovmf
   }
 
