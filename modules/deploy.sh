@@ -136,6 +136,7 @@ system_info() {
 
     if grep -a -m1 -q '10\.0\.2[2-9]' "$ISO_PATH"; then
         WIN_VERSION="win11"
+        REMOVE_FIRMWARE_ARGS=( '--xml' 'xpath.delete=./os/firmware' )
     else
         WIN_VERSION="win10"
     fi
@@ -293,6 +294,7 @@ configure_xml() {
         --connect qemu:///system
         --name "$DOMAIN_NAME"
         --osinfo "$WIN_VERSION"
+        "${OSINFO_CLEANUP_ARGS[@]}"
 
 
 
