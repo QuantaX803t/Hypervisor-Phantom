@@ -9,7 +9,7 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
-readonly EDK2_TAG="edk2-stable202511"
+readonly EDK2_TAG="edk2-stable202602"
 readonly EDK2_URL="https://github.com/tianocore/edk2.git"
 
 readonly OVMF_PATCH="$(pwd)/patches/EDK2/${CPU_MANUFACTURER}-${EDK2_TAG}.patch"
