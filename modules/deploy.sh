@@ -294,7 +294,7 @@ configure_xml() {
         --connect qemu:///system
         --name "$DOMAIN_NAME"
         --osinfo "$WIN_VERSION"
-        "${OSINFO_CLEANUP_ARGS[@]}"
+        "${REMOVE_FIRMWARE_ARGS[@]}"
 
 
 
