@@ -136,7 +136,6 @@ system_info() {
 
     if grep -a -m1 -q '10\.0\.2[2-9]' "$ISO_PATH"; then
         WIN_VERSION="win11"
-        REMOVE_FIRMWARE_ARGS=('--xml' 'xpath.delete=./os/firmware')
     else
         WIN_VERSION="win10"
     fi
@@ -294,7 +293,6 @@ configure_xml() {
         --connect qemu:///system
         --name "$DOMAIN_NAME"
         --osinfo "$WIN_VERSION"
-        "${REMOVE_FIRMWARE_ARGS[@]}"
 
 
 
@@ -320,20 +318,8 @@ configure_xml() {
         #   - https://libvirt.org/formatdomain.html#operating-system-booting
         #
 
-        # Loader / OVMF_CODE
-        --xml "./os/loader/@readonly=yes"
-        --xml "./os/loader/@secure=yes"
-        --xml "./os/loader/@type=pflash"
-        --xml "./os/loader/@format=raw"
-        --xml "./os/loader=/opt/AutoVirt/firmware/OVMF_CODE.fd"
-
-        # NVRAM / OVMF_VARS
-        --xml "./os/nvram/@template=/opt/AutoVirt/firmware/OVMF_VARS.fd"
-        --xml "./os/nvram/@templateFormat=raw"
-        --xml "./os/nvram/@format=raw"
-
-        # Boot order & menu
-        --boot "cdrom,hd,menu=on"
+        # Boot order & menu | Loader/OVMF_CODE | NVRAM/OVMF_VARS
+        --boot "cdrom,hd,menu=on,loader=/opt/AutoVirt/firmware/OVMF_CODE.fd,loader.readonly=yes,loader.secure=yes,loader.type=pflash,nvram.template=/opt/AutoVirt/firmware/OVMF_VARS.fd"
 
 
 
