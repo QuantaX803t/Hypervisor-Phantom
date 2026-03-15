@@ -201,29 +201,42 @@ index e90c9de..5b147d6 100644
                                0x1fc /* 16 -> 96 kHz */)
  #define QEMU_HDA_AMP_NONE    (0)
 diff --git a/hw/audio/intel-hda.c b/hw/audio/intel-hda.c
-index 758e130..78a4e0f 100644
+index 758e130..26f3bd6 100644
 --- a/hw/audio/intel-hda.c
 +++ b/hw/audio/intel-hda.c
-@@ -1239,7 +1239,7 @@ static void intel_hda_class_init_ich6(ObjectClass *klass, const void *data)
+@@ -1227,7 +1227,7 @@ static void intel_hda_class_init(ObjectClass *klass, const void *data)
+ 
+     k->realize = intel_hda_realize;
+     k->exit = intel_hda_exit;
+-    k->vendor_id = PCI_VENDOR_ID_INTEL;
++    k->vendor_id = PCI_VENDOR_ID_AMD;
+     k->class_id = PCI_CLASS_MULTIMEDIA_HD_AUDIO;
+     device_class_set_legacy_reset(dc, intel_hda_reset);
+     dc->vmsd = &vmstate_intel_hda;
+@@ -1239,8 +1239,8 @@ static void intel_hda_class_init_ich6(ObjectClass *klass, const void *data)
      DeviceClass *dc = DEVICE_CLASS(klass);
      PCIDeviceClass *k = PCI_DEVICE_CLASS(klass);
  
 -    k->device_id = 0x2668;
-+    k->device_id = 0x51c8; // "Intel 82801IB ICH6 - High Definition Audio [A3]" | Intel Device ID Replacement from 0x2668 | hw/audio/intel-hda.c
-     k->revision = 1;
+-    k->revision = 1;
++    k->device_id = 0x15e3; // "Intel 82801IB ICH6 - High Definition Audio [A3]" | AMD Device ID Replacement from 0x2668 | hw/audio/intel-hda.c
++    k->revision = 0;
      set_bit(DEVICE_CATEGORY_SOUND, dc->categories);
      dc->desc = "Intel HD Audio Controller (ich6)";
-@@ -1250,8 +1250,8 @@ static void intel_hda_class_init_ich9(ObjectClass *klass, const void *data)
+ }
+@@ -1249,8 +1249,8 @@ static void intel_hda_class_init_ich9(ObjectClass *klass, const void *data)
+ {
      DeviceClass *dc = DEVICE_CLASS(klass);
      PCIDeviceClass *k = PCI_DEVICE_CLASS(klass);
- 
+
 -    k->device_id = 0x293e;
 -    k->revision = 3;
-+    k->device_id = 0x51c8; // "Intel 82801IB ICH9 - High Definition Audio [A3]" | Intel Device ID Replacement from 0x293e | hw/audio/intel-hda.c
-+    k->revision = 1;
++    k->device_id = 0x15e3; // "Intel 82801IB ICH9 - High Definition Audio [A3]" | AMD Device ID Replacement from 0x293e | hw/audio/intel-hda.c
++    k->revision = 0;
      set_bit(DEVICE_CATEGORY_SOUND, dc->categories);
      dc->desc = "Intel HD Audio Controller (ich9)";
  }
+
 diff --git a/hw/core/qdev.c b/hw/core/qdev.c
 index fab42a7..ed5052b 100644
 --- a/hw/core/qdev.c
