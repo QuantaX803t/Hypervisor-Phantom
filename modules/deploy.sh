@@ -167,7 +167,6 @@ configure_xml() {
                 
                 if [[ -f ${nested_file[0]} ]]; then
                     read -r nested < "${nested_file[0]}"
-                
                     if [[ "$nested" != "Y" && "$nested" != "1" ]]; then
                         mod=${nested_file[0]#/sys/module/}; mod=${mod%%/*}
                         fmtr::warn "Hyper-V requires nested virtualization."
@@ -175,6 +174,7 @@ configure_xml() {
                         continue
                     fi
                 fi
+                
                 HYPERV_ARGS=('--xml' "./features/hyperv/@mode=passthrough")
                 HYPERV_CLOCK_STATUS="yes"
                 CPU_FEATURE_HYPERVISOR="optional"
