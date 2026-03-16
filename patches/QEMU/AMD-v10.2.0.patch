@@ -201,26 +201,37 @@ index e90c9de..5b147d6 100644
                                0x1fc /* 16 -> 96 kHz */)
  #define QEMU_HDA_AMP_NONE    (0)
 diff --git a/hw/audio/intel-hda.c b/hw/audio/intel-hda.c
-index 758e130..78a4e0f 100644
+index 758e130..4efc20c 100644
 --- a/hw/audio/intel-hda.c
 +++ b/hw/audio/intel-hda.c
-@@ -1239,7 +1239,7 @@ static void intel_hda_class_init_ich6(ObjectClass *klass, const void *data)
+@@ -1227,7 +1227,7 @@ static void intel_hda_class_init(ObjectClass *klass, const void *data)
+ 
+     k->realize = intel_hda_realize;
+     k->exit = intel_hda_exit;
+-    k->vendor_id = PCI_VENDOR_ID_INTEL;
++    k->vendor_id = PCI_VENDOR_ID_AMD;
+     k->class_id = PCI_CLASS_MULTIMEDIA_HD_AUDIO;
+     device_class_set_legacy_reset(dc, intel_hda_reset);
+     dc->vmsd = &vmstate_intel_hda;
+@@ -1239,8 +1239,8 @@ static void intel_hda_class_init_ich6(ObjectClass *klass, const void *data)
      DeviceClass *dc = DEVICE_CLASS(klass);
      PCIDeviceClass *k = PCI_DEVICE_CLASS(klass);
  
 -    k->device_id = 0x2668;
-+    k->device_id = 0x51c8; // "Intel 82801IB ICH6 - High Definition Audio [A3]" | Intel Device ID Replacement from 0x2668 | hw/audio/intel-hda.c
-     k->revision = 1;
+-    k->revision = 1;
++    k->device_id = 0x15e3; // "Intel 82801IB ICH6 - High Definition Audio [A3]" | AMD Device ID Replacement from 0x2668 | hw/audio/intel-hda.c
++    k->revision = 0;
      set_bit(DEVICE_CATEGORY_SOUND, dc->categories);
      dc->desc = "Intel HD Audio Controller (ich6)";
+ }
 @@ -1250,8 +1250,8 @@ static void intel_hda_class_init_ich9(ObjectClass *klass, const void *data)
      DeviceClass *dc = DEVICE_CLASS(klass);
      PCIDeviceClass *k = PCI_DEVICE_CLASS(klass);
  
 -    k->device_id = 0x293e;
 -    k->revision = 3;
-+    k->device_id = 0x51c8; // "Intel 82801IB ICH9 - High Definition Audio [A3]" | Intel Device ID Replacement from 0x293e | hw/audio/intel-hda.c
-+    k->revision = 1;
++    k->device_id = 0x15e3; // "Intel 82801IB ICH9 - High Definition Audio [A3]" | AMD Device ID Replacement from 0x293e | hw/audio/intel-hda.c
++    k->revision = 0;
      set_bit(DEVICE_CATEGORY_SOUND, dc->categories);
      dc->desc = "Intel HD Audio Controller (ich9)";
  }
@@ -301,6 +312,36 @@ index 18f482c..6679592 100644
      k->device_id = QXL_DEVICE_ID_STABLE;
      set_bit(DEVICE_CATEGORY_DISPLAY, dc->categories);
      device_class_set_legacy_reset(dc, qxl_reset_handler);
+diff --git a/hw/display/vga-pci.c b/hw/display/vga-pci.c
+index b81f7fd..0a741ee 100644
+--- a/hw/display/vga-pci.c
++++ b/hw/display/vga-pci.c
+@@ -259,7 +259,7 @@ static void pci_std_vga_realize(PCIDevice *dev, Error **errp)
+ 
+         if (d->flags & (1 << PCI_VGA_FLAG_ENABLE_QEXT)) {
+             qext = true;
+-            pci_set_byte(&d->dev.config[PCI_REVISION_ID], 2);
++            pci_set_byte(&d->dev.config[PCI_REVISION_ID], 0xc5);
+         }
+         if (d->flags & (1 << PCI_VGA_FLAG_ENABLE_EDID)) {
+             edid = true;
+@@ -290,7 +290,7 @@ static void pci_secondary_vga_realize(PCIDevice *dev, Error **errp)
+ 
+     if (d->flags & (1 << PCI_VGA_FLAG_ENABLE_QEXT)) {
+         qext = true;
+-        pci_set_byte(&d->dev.config[PCI_REVISION_ID], 2);
++        pci_set_byte(&d->dev.config[PCI_REVISION_ID], 0xc5);
+     }
+     if (d->flags & (1 << PCI_VGA_FLAG_ENABLE_EDID)) {
+         edid = true;
+@@ -384,6 +384,7 @@ static void vga_class_init(ObjectClass *klass, const void *data)
+     k->realize = pci_std_vga_realize;
+     k->romfile = "vgabios-stdvga.bin";
+     k->class_id = PCI_CLASS_DISPLAY_VGA;
++    k->revision = 0xc5; // AMD addition 
+     device_class_set_props(dc, vga_pci_properties);
+     dc->hotpluggable = false;
+ 
 diff --git a/hw/i2c/smbus_ich9.c b/hw/i2c/smbus_ich9.c
 index 956c9b5..c91c1c4 100644
 --- a/hw/i2c/smbus_ich9.c
@@ -499,7 +540,7 @@ index 9446a9f..f354b28 100644
  
  /*
   *   IVRS table as specified in AMD IOMMU Specification v2.62, Section 5.2
-@@ -2076,8 +2203,9 @@ void acpi_build(AcpiBuildTables *tables, MachineState *machine)
+@@ -2076,8 +2204,9 @@ void acpi_build(AcpiBuildTables *tables, MachineState *machine)
                         x86ms->oem_id, x86ms->oem_table_id, &pcms->cxl_devices_state);
      }
  
@@ -1319,7 +1360,7 @@ index f38e129..e346f2d 100644
  #define ACPI_BUILD_TABLE_FILE "etc/acpi/tables"
  #define ACPI_BUILD_RSDP_FILE "etc/acpi/rsdp"
 diff --git a/include/hw/pci/pci.h b/include/hw/pci/pci.h
-index b72e484..a15ff52 100644
+index b72e484..a9e62f9 100644
 --- a/include/hw/pci/pci.h
 +++ b/include/hw/pci/pci.h
 @@ -57,12 +57,12 @@ extern bool pci_available;
@@ -1327,8 +1368,9 @@ index b72e484..a15ff52 100644
  
  /* QEMU/Bochs VGA (0x1234) */
 -#define PCI_VENDOR_ID_QEMU               0x1234
-+#define PCI_VENDOR_ID_QEMU               0x1022 // "???" | AMD Vendor ID Replacement from 0x1234
- #define PCI_DEVICE_ID_QEMU_VGA           0x1111
+-#define PCI_DEVICE_ID_QEMU_VGA           0x1111
++#define PCI_VENDOR_ID_QEMU               0x1002 // "???" | AMD/ATI Vendor ID Replacement from 0x1234
++#define PCI_DEVICE_ID_QEMU_VGA           0x164e // "???" | AMD/ATI Vendor ID Replacement from 0x1111
  #define PCI_DEVICE_ID_QEMU_IPMI          0x1112
  
  /* VMWare (0x15ad) */
@@ -1425,6 +1467,28 @@ index 16034aa..2bae16e 100644
  
  #define PCI_VENDOR_ID_XEN                0x5853
  #define PCI_DEVICE_ID_XEN_PLATFORM       0x0001
+diff --git a/include/hw/southbridge/ich9.h b/include/hw/southbridge/ich9.h
+index 2c35dd0..87d0cfb 100644
+--- a/include/hw/southbridge/ich9.h
++++ b/include/hw/southbridge/ich9.h
+@@ -128,7 +128,7 @@ struct ICH9LPCState {
+ #define ICH9_LPC_DEV                            31
+ #define ICH9_LPC_FUNC                           0
+ 
+-#define ICH9_A2_LPC_REVISION                    0x2
++#define ICH9_A2_LPC_REVISION                    0x51    //AMD replacement from 0x2
+ #define ICH9_LPC_NB_PIRQS                       8       /* PCI A-H */
+ 
+ #define ICH9_LPC_PMBASE                         0x40
+@@ -213,7 +213,7 @@ struct ICH9LPCState {
+ /* D31:F3 SMBus controller */
+ #define TYPE_ICH9_SMB_DEVICE "ICH9-SMB"
+ 
+-#define ICH9_A2_SMB_REVISION                    0x02
++#define ICH9_A2_SMB_REVISION                    0x71  //AMD replacement from 0x02
+ #define ICH9_SMB_PI                             0x00
+ 
+ #define ICH9_SMB_SMBMBAR0                       0x10
 diff --git a/include/standard-headers/linux/qemu_fw_cfg.h b/include/standard-headers/linux/qemu_fw_cfg.h
 index cb93f66..fe34590 100644
 --- a/include/standard-headers/linux/qemu_fw_cfg.h
