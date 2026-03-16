@@ -162,6 +162,19 @@ configure_xml() {
 
         case "$enable_hyperv" in
             [Yy]*)
+                # KVM nested check (Intel or AMD)
+                nested_file=(/sys/module/kvm_*/parameters/nested)
+                
+                if [[ -f ${nested_file[0]} ]]; then
+                    read -r nested < "${nested_file[0]}"
+                    if [[ "$nested" != "Y" && "$nested" != "1" ]]; then
+                        mod=${nested_file[0]#/sys/module/}; mod=${mod%%/*}
+                        fmtr::warn "Hyper-V requires nested virtualization."
+                        fmtr::warn "Run: sudo modprobe -r $mod && sudo modprobe $mod nested=1"
+                        continue
+                    fi
+                fi
+                
                 HYPERV_ARGS=('--xml' "./features/hyperv/@mode=passthrough")
                 HYPERV_CLOCK_STATUS="yes"
                 CPU_FEATURE_HYPERVISOR="optional"
