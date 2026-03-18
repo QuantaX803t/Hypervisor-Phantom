@@ -34,30 +34,30 @@
 
 ## Hypervisor Bit
 
-Clears `CPUID.1.ECX[31]` — the universal "hypervisor present" indicator.
+Clears `CPUID.1.ECX[31]` - the universal "hypervisor present" indicator.
 
+```bash
+qemu-system-x86_64 -cpu host,-hypervisor
+```
 ```xml
   <cpu>
     <feature policy="disable" name="hypervisor"/>
   </cpu>
-```
-```bash
-qemu-system-x86_64 -cpu host,-hypervisor
 ```
 
 ## KVM Signature & Feature Bits
 
 Hides `CPUID 0x40000000` (`KVMKVMKVM` signature) and `CPUID 0x40000001` (KVM feature bits).
 
+```bash
+qemu-system-x86_64 -cpu host,kvm=off
+```
 ```xml
 <features>
   <kvm>
     <hidden state="on"/>
   </kvm>
 </features>
-```
-```bash
-qemu-system-x86_64 -cpu host,kvm=off
 ```
 
 ## KVM PV Enforce CPUID
