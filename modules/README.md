@@ -19,7 +19,77 @@
 
 
 
-# EDK2 (OVMF) / UEFI / Firmware
+
+
+
+
+# QEMU/KVM (Emulator)
+
+<details>
+<summary>Expand for details...</summary>
+
+## KVM-specific Custom MSR/Signatures
+
+> Reference: [`kvm_para.h`](https://gitlab.com/qemu-project/qemu/-/blob/master/include/standard-headers/asm-x86/kvm_para.h)
+
+### Hypervisor Bit
+
+Clears `CPUID.1.ECX[31]` — the universal "hypervisor present" indicator.
+
+```xml
+  <cpu>
+    <feature policy="disable" name="hypervisor"/>
+  </cpu>
+```
+```bash
+qemu-system-x86_64 -cpu host,-hypervisor
+```
+
+### KVM Signature & Feature Bits
+
+Hides `CPUID 0x40000000` (`KVMKVMKVM` signature) and `CPUID 0x40000001` (KVM feature bits).
+
+```xml
+<features>
+  <kvm>
+    <hidden state="on"/>
+  </kvm>
+</features>
+```
+```bash
+qemu-system-x86_64 -cpu host,kvm=off
+```
+
+### KVM PV Enforce CPUID
+
+By default, KVM allows the guest to use **all** paravirtual MSRs (`0x4b564d00`–`0x4b564d08`) even when their corresponding features are not announced via CPUID. Hiding the KVM signature (`kvm=off`) removes the CPUID leaves, but the MSRs remain silently functional.
+
+Enabling `kvm-pv-enforce-cpuid` tells KVM to **enforce** CPUID: if a PV feature bit is not present in `CPUID 0x40000001`, any `RDMSR`/`WRMSR` to the associated MSR will inject `#GP` into the guest.
+
+```bash
+qemu-system-x86_64 -cpu host,kvm-pv-enforce-cpuid=on
+```
+
+</details>
+
+
+
+
+
+
+
+
+---
+
+
+
+
+
+
+
+
+
+# EDK2 (OVMF)
 
 <details>
 <summary>Expand for details...</summary>
@@ -307,58 +377,8 @@ QEMU XML:
 
 
 
-
-
 ---
 
-# QEMU / Emulator
-
-<details>
-<summary>Expand for details...</summary>
-
-## KVM-specific Custom MSR/Signatures
-
-> Reference: [`kvm_para.h`](https://gitlab.com/qemu-project/qemu/-/blob/master/include/standard-headers/asm-x86/kvm_para.h)
-
-### Hypervisor Bit
-
-Clears `CPUID.1.ECX[31]` — the universal "hypervisor present" indicator.
-
-```xml
-  <cpu>
-    <feature policy="disable" name="hypervisor"/>
-  </cpu>
-```
-```bash
-qemu-system-x86_64 -cpu host,-hypervisor
-```
-
-### KVM Signature & Feature Bits
-
-Hides `CPUID 0x40000000` (`KVMKVMKVM` signature) and `CPUID 0x40000001` (KVM feature bits).
-
-```xml
-<features>
-  <kvm>
-    <hidden state="on"/>
-  </kvm>
-</features>
-```
-```bash
-qemu-system-x86_64 -cpu host,kvm=off
-```
-
-### KVM PV Enforce CPUID
-
-By default, KVM allows the guest to use **all** paravirtual MSRs (`0x4b564d00`–`0x4b564d08`) even when their corresponding features are not announced via CPUID. Hiding the KVM signature (`kvm=off`) removes the CPUID leaves, but the MSRs remain silently functional.
-
-Enabling `kvm-pv-enforce-cpuid` tells KVM to **enforce** CPUID: if a PV feature bit is not present in `CPUID 0x40000001`, any `RDMSR`/`WRMSR` to the associated MSR will inject `#GP` into the guest.
-
-```bash
-qemu-system-x86_64 -cpu host,kvm-pv-enforce-cpuid=on
-```
-
-</details>
 
 
 
@@ -367,7 +387,7 @@ qemu-system-x86_64 -cpu host,kvm-pv-enforce-cpuid=on
 
 
 
----
+
 
 # XML
 
