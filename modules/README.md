@@ -32,7 +32,7 @@
 
 > Reference: [`kvm_para.h`](https://gitlab.com/qemu-project/qemu/-/blob/master/include/standard-headers/asm-x86/kvm_para.h)
 
-### Hypervisor Bit
+## Hypervisor Bit
 
 Clears `CPUID.1.ECX[31]` — the universal "hypervisor present" indicator.
 
@@ -45,7 +45,7 @@ Clears `CPUID.1.ECX[31]` — the universal "hypervisor present" indicator.
 qemu-system-x86_64 -cpu host,-hypervisor
 ```
 
-### KVM Signature & Feature Bits
+## KVM Signature & Feature Bits
 
 Hides `CPUID 0x40000000` (`KVMKVMKVM` signature) and `CPUID 0x40000001` (KVM feature bits).
 
@@ -60,7 +60,7 @@ Hides `CPUID 0x40000000` (`KVMKVMKVM` signature) and `CPUID 0x40000001` (KVM fea
 qemu-system-x86_64 -cpu host,kvm=off
 ```
 
-### KVM PV Enforce CPUID
+## KVM PV Enforce CPUID
 
 By default, KVM allows the guest to use **all** paravirtual MSRs (`0x4b564d00`–`0x4b564d08`) even when their corresponding features are not announced via CPUID. Hiding the KVM signature (`kvm=off`) removes the CPUID leaves, but the MSRs remain silently functional.
 
@@ -68,6 +68,13 @@ Enabling `kvm-pv-enforce-cpuid` tells KVM to **enforce** CPUID: if a PV feature 
 
 ```bash
 qemu-system-x86_64 -cpu host,kvm-pv-enforce-cpuid=on
+```
+
+```xml
+<qemu:commandline>
+  <qemu:arg value='-cpu'/>
+  <qemu:arg value='host,kvm-pv-enforce-cpuid=on'/>
+</qemu:commandline>
 ```
 
 </details>
