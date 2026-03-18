@@ -329,6 +329,9 @@ Clears `CPUID.1.ECX[31]` — the universal "hypervisor present" indicator.
     <feature policy="disable" name="hypervisor"/>
   </cpu>
 ```
+```bash
+-cpu host,-hypervisor
+```
 
 ### KVM Signature & Feature Bits
 
@@ -341,11 +344,17 @@ Hides `CPUID 0x40000000` (`KVMKVMKVM` signature) and `CPUID 0x40000001` (KVM fea
   </kvm>
 </features>
 ```
+```bash
+-cpu host,kvm=off
+```
 
 ### KVM paravirtualization features
 
 Disables all KVM paravirtualization features
 
+```bash
+-cpu host,kvmclock=off,kvm-nopiodelay=off,kvm-asyncpf=off,kvm-steal-time=off,kvm-pv-eoi=off,kvmclock-stable-bit=off
+```
 ```patch
 diff --git a/target/i386/kvm/kvm-cpu.c b/target/i386/kvm/kvm-cpu.c
 index 9c25b55..af64a32 100644
