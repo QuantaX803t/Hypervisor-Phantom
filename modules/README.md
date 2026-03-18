@@ -348,37 +348,14 @@ Hides `CPUID 0x40000000` (`KVMKVMKVM` signature) and `CPUID 0x40000001` (KVM fea
 qemu-system-x86_64 -cpu host,kvm=off
 ```
 
-### KVM paravirtualization features
+### KVM PV Enforce CPUID
 
-Disables all KVM paravirtualization features
+By default, KVM allows the guest to use **all** paravirtual MSRs (`0x4b564d00`–`0x4b564d08`) even when their corresponding features are not announced via CPUID. Hiding the KVM signature (`kvm=off`) removes the CPUID leaves, but the MSRs remain silently functional.
+
+Enabling `kvm-pv-enforce-cpuid` tells KVM to **enforce** CPUID: if a PV feature bit is not present in `CPUID 0x40000001`, any `RDMSR`/`WRMSR` to the associated MSR will inject `#GP` into the guest.
 
 ```bash
-qemu-system-x86_64 -cpu host,kvmclock=off,kvm-nopiodelay=off,kvm-asyncpf=off,kvm-steal-time=off,kvm-pv-eoi=off,kvmclock-stable-bit=off
-```
-```patch
-diff --git a/target/i386/kvm/kvm-cpu.c b/target/i386/kvm/kvm-cpu.c
-index 9c25b55..af64a32 100644
---- a/target/i386/kvm/kvm-cpu.c
-+++ b/target/i386/kvm/kvm-cpu.c
-@@ -174,12 +174,12 @@ static void kvm_cpu_xsave_init(void)
-  *       docs/system/target-i386.rst)
-  */
- static PropValue kvm_default_props[] = {
--    { "kvmclock", "on" },
--    { "kvm-nopiodelay", "on" },
--    { "kvm-asyncpf", "on" },
--    { "kvm-steal-time", "on" },
--    { "kvm-pv-eoi", "on" },
--    { "kvmclock-stable-bit", "on" },
-+    { "kvmclock", "off" },
-+    { "kvm-nopiodelay", "off" },
-+    { "kvm-asyncpf", "off" },
-+    { "kvm-steal-time", "off" },
-+    { "kvm-pv-eoi", "off" },
-+    { "kvmclock-stable-bit", "off" },
-     { "x2apic", "on" },
-     { "kvm-msi-ext-dest-id", "off" },
-     { "acpi", "off" },
+qemu-system-x86_64 -cpu host,kvm-pv-enforce-cpuid=on
 ```
 
 </details>
