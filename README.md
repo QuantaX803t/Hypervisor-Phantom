@@ -2,7 +2,7 @@
 
 # AutoVirt
 
-This tool provides automated setups for linux virtualization related stuff.
+This project automates complex Linux virtualization tasks.
 
 [![](https://dcbadge.limes.pink/api/server/https://discord.gg/hNVHChp7PX)](https://discord.gg/hNVHChp7PX)
 
