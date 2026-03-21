@@ -24,12 +24,12 @@ git apply < "qemu-10.2.0.patch"
 
 #### Clone repo
 ```
-git clone --depth=1 --branch "edk2-stable202511" "https://github.com/tianocore/edk2.git"
+git clone --depth=1 --branch "edk2-stable202602" "https://github.com/tianocore/edk2.git"
 ```
 
 #### Git diff patched repo
 ```
-git diff HEAD > "edk2-stable202511.patch"
+git diff HEAD > "edk2-stable202602.patch"
 ```
 
 #### Patch repo
