@@ -71,5 +71,6 @@ foreach ($wmiMon in $wmiMonitors) {
 Get-PnpDevice -Class Display | Where-Object { $_.Status -eq 'OK' } |
 ForEach-Object {
     Disable-PnpDevice -InstanceId $_.InstanceId -Confirm:$false
+	Start-Sleep -Seconds 3
     Enable-PnpDevice  -InstanceId $_.InstanceId -Confirm:$false
 }
