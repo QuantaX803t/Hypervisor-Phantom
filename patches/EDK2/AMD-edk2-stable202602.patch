@@ -1,3 +1,28 @@
+diff --git a/BaseTools/Source/C/Makefiles/header.makefile b/BaseTools/Source/C/Makefiles/header.makefile
+index d63f487..dfdd535 100644
+--- a/BaseTools/Source/C/Makefiles/header.makefile
++++ b/BaseTools/Source/C/Makefiles/header.makefile
+@@ -158,17 +158,17 @@ BUILD_OPTFLAGS = -O2 $(EXTRA_OPTFLAGS)
+ 
+ ifeq ($(DARWIN),Darwin)
+ # assume clang or clang compatible flags on OS X
+-CFLAGS = -MD -fshort-wchar -fno-strict-aliasing -Wall -Werror \
++CFLAGS = -MD -fshort-wchar -fno-strict-aliasing \
+ -Wno-deprecated-declarations -Wno-self-assign -Wno-unused-result -nostdlib -g
+ else
+ ifneq ($(CLANG),)
+ CFLAGS = -MD -fshort-wchar -fno-strict-aliasing -fwrapv \
+--fno-delete-null-pointer-checks -Wall -Werror \
++-fno-delete-null-pointer-checks \
+ -Wno-deprecated-declarations -Wno-self-assign \
+ -Wno-unused-result -nostdlib -g
+ else
+ CFLAGS = -MD -fshort-wchar -fno-strict-aliasing -fwrapv \
+--fno-delete-null-pointer-checks -Wall -Werror \
++-fno-delete-null-pointer-checks \
+ -Wno-deprecated-declarations -Wno-stringop-truncation -Wno-restrict \
+ -Wno-unused-result -nostdlib -g
+ endif
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
 index 9e2c607..915c97b 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
@@ -109,7 +134,7 @@ index 2fe6ab3..2d697df 100644
          );
        DEBUG ((DEBUG_INFO, "%a: %s = %s\n", __func__, VariableName, Translated));
 diff --git a/OvmfPkg/QemuVideoDxe/Driver.c b/OvmfPkg/QemuVideoDxe/Driver.c
-index 6feca83..aca4439 100644
+index 6feca83..0a004e4 100644
 --- a/OvmfPkg/QemuVideoDxe/Driver.c
 +++ b/OvmfPkg/QemuVideoDxe/Driver.c
 @@ -41,19 +41,19 @@ QEMU_VIDEO_CARD  gQemuVideoCardList[] = {
