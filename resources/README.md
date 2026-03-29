@@ -173,18 +173,13 @@ amdgpu.sg_display=0
 
 
 <details>
-<summary>VPN + Hypervisor</summary>
+<summary>Hypervisor + VPN</summary>
 
 - ***IMPORTANT***: Ensure not to add a custom DNS configuration to the guest system on the hypervisor if your host system's VPN uses custom DNS block lists. Doing so may result in your guest hypervisor system losing its internet connection!
 
 ## Mullvad VPN + QEMU
 - For the VPN connection to get properly natted/bridged you must enable the setting `Local network sharing` option!
     - How to: `⚙️` > `VPN settings` > `Local network sharing` ✅
-
-![image](https://github.com/user-attachments/assets/18ba68b4-31ea-4c5e-9ad1-66417001820f)
-![image](https://github.com/user-attachments/assets/36465501-13fa-469b-bb66-f3db6003a64e)
-![image](https://github.com/user-attachments/assets/77890671-d024-491a-8d33-cb38e3503ef4)
-![image](https://github.com/user-attachments/assets/126e06bd-23c0-4cb9-9bfe-5a55fe6689ab)
 
 </details>
 
