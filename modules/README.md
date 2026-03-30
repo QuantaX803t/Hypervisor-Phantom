@@ -367,7 +367,7 @@ QEMU XML:
 
 
 
-# Linux Kernel
+# Linux (Kernel)
 
 <details>
 <summary>Expand for details...</summary>
