@@ -7,19 +7,19 @@
 
 #### Clone repo
 ```
-git clone --depth=1 --branch "v10.2.0" "https://gitlab.com/qemu-project/qemu.git"
+git clone --depth=1 --branch "v11.0.0" "https://gitlab.com/qemu-project/qemu.git"
 ```
 
 #### Git diff patched repo
 ```
 git add .
 
-git diff HEAD > "qemu-10.2.0.patch"
+git diff HEAD > "v11.0.0.patch"
 ```
 
 #### Patch repo
 ```
-git apply < "qemu-10.2.0.patch"
+git apply < "v11.0.0.patch"
 ```
 
 ## EDK2
@@ -36,5 +36,5 @@ git diff HEAD > "edk2-stable202602.patch"
 
 #### Patch repo
 ```
-git apply < "edk2-stable202511.patch"
+git apply < "edk2-stable202602.patch"
 ```
