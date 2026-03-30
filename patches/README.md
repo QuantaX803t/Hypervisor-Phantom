@@ -12,6 +12,8 @@ git clone --depth=1 --branch "v10.2.0" "https://gitlab.com/qemu-project/qemu.git
 
 #### Git diff patched repo
 ```
+git add .
+
 git diff HEAD > "qemu-10.2.0.patch"
 ```
 
