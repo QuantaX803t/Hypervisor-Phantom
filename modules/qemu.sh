@@ -2,26 +2,33 @@
 
 source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
+
+
+
+
 readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
 readonly QEMU_TAG="v10.2.0"
 readonly QEMU_URL="https://gitlab.com/qemu-project/qemu.git"
 
-readonly QEMU_PATCH="$(pwd)/patches/QEMU/${CPU_MANUFACTURER}-${QEMU_TAG}.patch"
+readonly QEMU_PATCH="$(pwd)/patches/QEMU/${QEMU_TAG}.patch"
+
+
+
+
 
 REQUIRED_PKGS_Arch=(
-  # Basic Build Dependencie(s)
-  acpica base-devel dmidecode glib2 ninja python-packaging
-  python-sphinx python-sphinx_rtd_theme gnupg libevdev
+  # build dependencies
+  base-devel ninja
 
-  # Spice Dependencie(s)
-  spice gtk3
+  # spice
+  spice
 
-  # USB passthrough Dependencie(s)
+  # usb pass-through
   libusb
 
-  # USB redirection Dependencie(s)
+  # usb redirection
   usbredir
 )
 
@@ -71,6 +78,10 @@ REQUIRED_PKGS_Fedora=(
   usbredir-devel
 )
 
+
+
+
+
 ################################################################################
 # Acquire QEMU source
 ################################################################################
@@ -111,35 +122,9 @@ patch_qemu() {
   fmtr::log "Applied '${CPU_MANUFACTURER}-${QEMU_TAG}.patch' successfully."
 
   fmtr::info "Applying dynamic modifications..."
-  #spoof_serials
   spoof_models
   spoof_acpi
   spoof_smbios
-}
-
-
-
-
-
-
-
-
-
-
-
-
-spoof_serials() {
-  local patterns=(STRING_SERIALNUMBER STR_SERIALNUMBER STR_SERIAL_MOUSE \
-                    STR_SERIAL_TABLET STR_SERIAL_KEYBOARD STR_SERIAL_COMPAT)
-
-  for file in ./hw/usb/*.c; do
-    for pat in "${patterns[@]}"; do
-      grep -n "\[\s*${pat}\s*\]\s*=\s*\"[^\"]*\"" "$file" | cut -d: -f1 | while read -r lineno; do
-        serial=$(tr -dc 'A-Z0-9' </dev/urandom | head -c10)
-        sed -r -i "${lineno}s/(\[\s*${pat}\s*\]\s*=\s*\")[^\"]*(\")/\1${serial}\2/" "$file"
-      done
-    done
-  done
 }
 
 
@@ -290,23 +275,6 @@ spoof_acpi() {
 
 
 spoof_smbios() {
-  local chipset_file
-
-  case "$QEMU_TAG" in
-    "v8.2.6")
-      chipset_file="hw/i386/pc_q35.c"
-      ;;
-    v9.*|v10.*.*)
-      chipset_file="hw/i386/fw_cfg.c"
-      ;;
-    *)
-      fmtr::warn "Unsupported QEMU version: $QEMU_TAG"
-      ;;
-  esac
-
-  local manufacturer=$($ROOT_ESC dmidecode --string processor-manufacturer)
-  sed -i "$chipset_file" -e "s/smbios_set_defaults(\"[^\"]*\",/smbios_set_defaults(\"${manufacturer}\",/"
-
   # TODO: Implement smbios.bin spoofer
 }
 
