@@ -9,8 +9,8 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
-readonly QEMU_TAG="v10.2.0"
 readonly QEMU_URL="https://gitlab.com/qemu-project/qemu.git"
+readonly QEMU_TAG="v10.2.0"
 
 readonly QEMU_PATCH="$(pwd)/patches/QEMU/${QEMU_TAG}.patch"
 
