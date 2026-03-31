@@ -9,16 +9,23 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
-readonly EDK2_TAG="edk2-stable202602"
 readonly EDK2_URL="https://github.com/tianocore/edk2.git"
+readonly EDK2_TAG="edk2-stable202602"
 
-readonly OVMF_PATCH="$(pwd)/patches/EDK2/${CPU_MANUFACTURER}-${EDK2_TAG}.patch"
-
-
-
+readonly OVMF_PATCH="$(pwd)/patches/EDK2/${EDK2_TAG}.patch"
 
 
-REQUIRED_PKGS_Arch=(base-devel acpica git nasm python patch virt-firmware)
+
+
+
+REQUIRED_PKGS_Arch=(
+  # build dependencies
+  base-devel nasm acpica
+
+  # script dependencies
+  virt-firmware git patch
+)
+
 REQUIRED_PKGS_Debian=(build-essential uuid-dev acpica-tools git nasm python-is-python3 patch python3-virt-firmware)
 REQUIRED_PKGS_openSUSE=(gcc gcc-c++ make acpica git nasm python3 libuuid-devel patch virt-firmware)
 REQUIRED_PKGS_Fedora=(gcc gcc-c++ make acpica-tools git nasm python3 libuuid-devel patch python3-virt-firmware)
