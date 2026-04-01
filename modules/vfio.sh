@@ -10,10 +10,6 @@ readonly VFIO_CONF_PATH="/etc/modprobe.d/vfio.conf"
 readonly VFIO_KERNEL_OPTS_REGEX='(intel_iommu=[^ ]*|iommu=[^ ]*|vfio-pci\.ids=[^ ]*)'
 readonly LIMINE_ENTRY_REGEX='^KERNEL_CMDLINE\[.*\]\+?='
 
-
-
-
-
 readonly -a SDBOOT_CONF_LOCATIONS=(
     /boot/loader/entries
     /boot/efi/loader/entries
