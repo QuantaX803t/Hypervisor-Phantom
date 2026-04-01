@@ -29,35 +29,32 @@ amdgpu.sg_display=0
 <details>
 <summary>Expand for details...</summary>
 
-- **Official**
+- **Virtualization**
   - [QEMU’s documentation](https://www.qemu.org/docs/master/)
     - [Man Page (Args)](https://www.qemu.org/docs/master/system/qemu-manpage.html)
     - [Hyper-V Enlightenments](https://www.qemu.org/docs/master/system/i386/hyperv.html)
   - [KVM for x86 systems (Linux Kernel)](https://www.kernel.org/doc/html/next/virt/kvm/x86/index.html)
   - [Domain XML format](https://libvirt.org/formatdomain.html)
-  - [ACPI System Management Bus Interface Specification - HTML](https://uefi.org/specs/ACPI/6.6/13_System_Mgmt_Bus_Interface_Specification.html) - [PDF Version](https://uefi.org/sites/default/files/resources/ACPI_Spec_6.6.pdf)
-  - [SMBIOS Reference Specification - PDF](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.9.0.pdf)
-  - [PCILookup](https://www.pcilookup.com/)
-- **General**
+- **Specifications**
+  - [www.dmtf.org](https://www.dmtf.org/standards/smbios)
+    - [SMBIOS](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.9.0.pdf)
+  - [uefi.org](https://uefi.org/specifications)
+    - [ACPI](https://uefi.org/sites/default/files/resources/ACPI_Spec_6.6.pdf)
+      - [ACPI ID Registry](https://uefi.org/ACPI_ID_List)
+    - [UEFI](https://uefi.org/sites/default/files/resources/UEFI_Spec_Final_2.11.pdf)
+  - [pcisig.com](https://pcisig.com/specifications)
+    - [PCI Code and ID Assignment Specification Revision 1.19](https://members.pcisig.com/document/dl/22472)
+    - [PCILookup](https://www.pcilookup.com/)
+- **Blogs**
   - [https://evasions.checkpoint.com/](https://evasions.checkpoint.com/)
   - [https://r0ttenbeef.github.io/](https://r0ttenbeef.github.io/Deploy-Hidden-Virtual-Machine-For-VMProtections-Evasion-And-Dynamic-Analysis/)
   - [https://secret.club/](https://secret.club/)
     - [how-anti-cheats-detect-system-emulation.html](https://secret.club/2020/04/13/how-anti-cheats-detect-system-emulation.html)
     - [battleye-hypervisor-detection.html](https://secret.club/2020/01/12/battleye-hypervisor-detection.html)
-- **Reddit**
-  - [spoof_and_make_your_vm_undetectable_no_more](https://www.reddit.com/r/VFIO/comments/i071qx/spoof_and_make_your_vm_undetectable_no_more/)
-  - [be_is_banning_kvm_on_r6](https://www.reddit.com/r/VFIO/comments/hts1o1/be_is_banning_kvm_on_r6/)
-- **Unknowncheats**
-  - [418885-kvm-detection-fixes.html](https://www.unknowncheats.me/forum/escape-from-tarkov/418885-kvm-detection-fixes.html) 
-- **Git Repos**
-  - [pve-patch](https://github.com/Distance10086/pve-patch)
-  - [pve-anti-detection](https://github.com/lixiaoliu666/pve-anti-detection)
-  - [proxmox-ve-anti-detection](https://github.com/zhaodice/proxmox-ve-anti-detection)
-  - [kvm-hidden](https://gitlab.com/DonnerPartyOf1/kvm-hidden)
-  - [KVM-Spoofing](https://github.com/A1exxander/KVM-Spoofing)
-  - [linux-5.15-hardened-kvm-svm-qemu-win10](https://alt.deliktas.de/git/adeliktas/linux-5.15-hardened-kvm-svm-qemu-win10)
-  - [sGPUpt](https://github.com/MaxxRK/sGPUpt)
-  - [gpupt](https://github.com/pragmagrid/gpupt)
+  - [https://revers.engineering/](https://revers.engineering/day-5-vmexits-interrupts-cpuid-emulation/)
+- **Git Repositories**
+  - [qemu-emu-realpc](https://github.com/AICodo/qemu-emu-realpc)
+  - [qemu-anti-detection](https://github.com/zhaodice/qemu-anti-detection)
 
 </details>
 
