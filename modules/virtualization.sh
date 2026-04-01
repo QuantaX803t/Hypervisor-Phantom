@@ -2,8 +2,13 @@
 
 source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
+
+
+
+
 REQUIRED_PKGS_Arch=(
-  qemu-base edk2-ovmf libvirt dnsmasq virt-manager swtpm
+  libvirt dnsmasq virt-manager swtpm
+  # qemu-base edk2-ovmf
 )
 
 REQUIRED_PKGS_Debian=(
@@ -19,6 +24,10 @@ REQUIRED_PKGS_openSUSE=(
 REQUIRED_PKGS_Fedora=(
   @virtualization swtpm
 )
+
+
+
+
 
 configure_system_installation() {
   local target_user="${SUDO_USER:-$USER}"
@@ -59,6 +68,10 @@ configure_system_installation() {
     && fmtr::info "Started and enabled default libvirt network" \
     || fmtr::warn "Failed to start default libvirt network (see $LOG_FILE)"
 }
+
+
+
+
 
 main() {
   install_req_pkgs "virt"
