@@ -1,23 +1,7 @@
-## 🛠️ Common Troubleshooting
+## 🛠️ Troubleshooting
 
 <details>
 <summary>Expand for details...</summary>
-
-- Windows 11 BSOD - USBXHCI.sys
-  - Switch from USB3 to USB2 in VMM/XML
-
-- Windows 10/11 w/Secure Boot BSOD after 5-30 mins from boot
-  - Increase pagefile size inside Windows
-
-- Dumping host's SMBIOS for QEMU passthrough
-  - First try:
-  ```
-  sudo cat /sys/firmware/dmi/tables/{smbios_entry_point,DMI} > smbios.bin
-  ```
-  - Then try (if QEMU doesn't accept):
-  ```
-  sudo cat /sys/firmware/dmi/tables/DMI > smbios.bin
-  ```
 
 - Fix Ryzen 7000/9000 iGPUs "No Signal/Black Screen/flickering" when attempting to display the DM
 Add the arg below to your kernel options config:
