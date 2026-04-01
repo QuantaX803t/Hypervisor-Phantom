@@ -57,10 +57,10 @@ configure_system_installation() {
     -e "s|end='[0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}'|end='10.0.0.254'|g" \
     "$XML_PATH"
 
-  # Enable (autostart) & start libvirtd.socket
-  $ROOT_ESC systemctl enable --now libvirtd.socket &>> "$LOG_FILE" \
-    && fmtr::info "Ensured libvirtd.socket is enabled and started" \
-    || fmtr::warn "Failed to enable/start libvirtd.socket (see $LOG_FILE)"
+  # Enable (autostart) & start libvirtd
+  $ROOT_ESC systemctl enable --now libvirtd &>> "$LOG_FILE" \
+    && fmtr::info "Ensured libvirtd is enabled and started" \
+    || fmtr::warn "Failed to enable/start libvirtd (see $LOG_FILE)"
 
   # Autostart & start default (virbr0) libvirt network
   $ROOT_ESC virsh net-autostart default &>>"$LOG_FILE" || true
