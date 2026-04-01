@@ -23,7 +23,7 @@ REQUIRED_PKGS_Arch=(
   base-devel nasm acpica
 
   # script dependencies
-  virt-firmware git patch
+  git patch virt-firmware
 )
 
 REQUIRED_PKGS_Debian=(build-essential uuid-dev acpica-tools git nasm python-is-python3 patch python3-virt-firmware)
