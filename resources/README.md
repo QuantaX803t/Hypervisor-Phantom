@@ -59,7 +59,8 @@ amdgpu.sg_display=0
     - [battleye-hypervisor-detection.html](https://secret.club/2020/01/12/battleye-hypervisor-detection.html)
   - [https://revers.engineering/](https://revers.engineering/day-5-vmexits-interrupts-cpuid-emulation/)
 - **Git Repositories**
-  - [qemu-emu-realpc](https://github.com/AICodo/qemu-emu-realpc)
+  - [pve-emu-realpc](https://github.com/AICodo/pve-emu-realpc)
+  - [Nika-Read-Only](https://github.com/Ape-xCV/Nika-Read-Only)
   - [qemu-anti-detection](https://github.com/zhaodice/qemu-anti-detection)
 
 </details>
