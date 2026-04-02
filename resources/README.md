@@ -40,7 +40,7 @@ amdgpu.sg_display=0
     - [Man Page (Args)](https://www.qemu.org/docs/master/system/qemu-manpage.html)
     - [Hyper-V Enlightenments](https://www.qemu.org/docs/master/system/i386/hyperv.html)
   - [KVM for x86 systems (Linux Kernel)](https://www.kernel.org/doc/html/next/virt/kvm/x86/index.html)
-  - [Domain XML format](https://libvirt.org/formatdomain.html)
+  - [libvirt - Domain XML format](https://libvirt.org/formatdomain.html)
 - **Specifications**
   - [www.dmtf.org](https://www.dmtf.org/standards/smbios)
     - [SMBIOS](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.9.0.pdf)
