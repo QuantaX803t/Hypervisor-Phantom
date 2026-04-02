@@ -19,7 +19,7 @@ readonly OVMF_PATCH="$(pwd)/patches/EDK2/${EDK2_TAG}.patch"
 
 
 REQUIRED_PKGS_Arch=(
-  # build dependencies
+  # OVMF build dependencies
   base-devel nasm acpica
 
   # script dependencies
