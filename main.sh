@@ -2,6 +2,10 @@
 
 source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
+
+
+
+
 check_non_root() {
   if [[ $EUID -eq 0 ]]; then
     fmtr::fatal "Do not run as root.\n"
@@ -9,33 +13,37 @@ check_non_root() {
   fi
 }
 
-detect_distro() {
-  local id
 
-  # Try reading /etc/os-release first
+
+
+detect_distro() {
+  local EXPERIMENTAL=${EXPERIMENTAL:-0}
+  local id=""
+
   if [[ -r /etc/os-release ]]; then
     . /etc/os-release
     id=${ID,,}
   fi
 
-  # Map known distro IDs to canonical names
   case "$id" in
-    arch|manjaro|endeavouros|arcolinux|garuda|artix) DISTRO="Arch" ;;
-    opensuse-*|sles) DISTRO="openSUSE" ;;
-    debian|ubuntu|linuxmint|kali|pureos|pop|elementary|zorin|mx|parrot|deepin|peppermint|trisquel|bodhi|linuxlite|neon) DISTRO="Debian" ;;
-    fedora|centos|rhel|rocky|alma|oracle) DISTRO="Fedora" ;;
+    arch|manjaro|endeavouros|arcolinux|garuda|artix)
+      DISTRO="Arch"
+      ;;
     *)
-      # Fallback: detect by package manager
-      if command -v pacman >/dev/null 2>&1; then
+      if command -v pacman >/dev/null 2>&1 && [[ -d /etc/pacman.d ]]; then
         DISTRO="Arch"
-      elif command -v apt >/dev/null 2>&1; then
-        DISTRO="Debian"
-      elif command -v zypper >/dev/null 2>&1; then
-        DISTRO="openSUSE"
-      elif command -v dnf >/dev/null 2>&1; then
-        DISTRO="Fedora"
+      elif (( EXPERIMENTAL )); then
+        if command -v apt >/dev/null 2>&1; then
+          DISTRO="Debian"
+        elif command -v zypper >/dev/null 2>&1; then
+          DISTRO="openSUSE"
+        elif command -v dnf >/dev/null 2>&1; then
+          DISTRO="Fedora"
+        else
+          fmtr::fatal "${id:-Unknown} distro isn't supported."
+        fi
       else
-        fmtr::fatal "${id:-Unknown} distro isn't supported yet."
+        fmtr::fatal "${id:-Unknown} distro isn't supported (Arch only)."
       fi
       ;;
   esac
@@ -44,25 +52,27 @@ detect_distro() {
   readonly DISTRO
 }
 
+
+
+
+
 cpu_detect() {
-  local vendor
-  vendor=$(awk -F': +' '/^vendor_id/ {print $2; exit}' /proc/cpuinfo)
+  local cpuinfo
+  cpuinfo=$(</proc/cpuinfo)
 
-  [[ -n $vendor ]] || fmtr::fatal "Unable to determine CPU vendor from /proc/cpuinfo"
-
-  case "$vendor" in
-    *AuthenticAMD*)
-      CPU_VENDOR_ID="AuthenticAMD"
-      CPU_VIRTUALIZATION="svm"
-      CPU_MANUFACTURER="AMD"
-      ;;
+  case "$cpuinfo" in
     *GenuineIntel*)
       CPU_VENDOR_ID="GenuineIntel"
       CPU_VIRTUALIZATION="vmx"
       CPU_MANUFACTURER="Intel"
       ;;
+    *AuthenticAMD*)
+      CPU_VENDOR_ID="AuthenticAMD"
+      CPU_VIRTUALIZATION="svm"
+      CPU_MANUFACTURER="AMD"
+      ;;
     *)
-      fmtr::fatal "Unsupported CPU vendor: $vendor"
+      fmtr::fatal "Unsupported CPU vendor"
       ;;
   esac
 
@@ -70,51 +80,68 @@ cpu_detect() {
   readonly CPU_VENDOR_ID CPU_VIRTUALIZATION CPU_MANUFACTURER
 }
 
+
+
+
+
 main_menu() {
-  local options=(
-    "Exit"
-    "Virtualization Setup"
-    "QEMU (Patched) Setup"
-    "EDK2 (Patched) Setup"
-    "GPU Passthrough Setup"
-    "Kernel (Patched) Setup"
-    "Looking Glass Setup"
-    "Deploy Auto/Unattended XML"
+  # Option labels and corresponding module scripts (empty = not ready)
+  declare -A menu=(
+    [1]="Virtualization Setup|virtualization.sh"
+    [2]="QEMU (Patched) Setup|qemu.sh"
+    [3]="EDK2 (Patched) Setup|edk2.sh"
+    [4]="GPU Passthrough Setup|vfio.sh"
+    [5]="Kernel (Patched) Setup|"
+    [6]="Looking Glass Setup|"
+    [7]="Deploy Auto/Unattended XML|deploy.sh"
   )
-  readonly options
+
+  local EXIT_OPTION="Exit"
 
   while :; do
     clear
     fmtr::box_text " >> AutoVirt << "; echo ""
 
-    for ((i=1; i<${#options[@]}; i++)); do
-      printf '  %b[%d]%b %s\n' "$TEXT_BRIGHT_YELLOW" "$i" "$RESET" "${options[i]}"
+    # Print menu
+    for i in "${!menu[@]}"; do
+      local label="${menu[$i]%%|*}"
+      printf '  %b[%d]%b %s\n' "$TEXT_BRIGHT_YELLOW" "$i" "$RESET" "$label"
     done
-    printf '\n  %b[%d]%b %s\n\n' "$TEXT_BRIGHT_RED" 0 "$RESET" "${options[0]}"
+    printf '\n  %b[0]%b %s\n\n' "$TEXT_BRIGHT_RED" "$RESET" "$EXIT_OPTION"
 
+    # Prompt
     local choice
     choice="$(prmt::quick_prompt '  Enter your choice [0-7]: ')" || continue
     clear
 
-    case $choice in
-      1) fmtr::box_text "${options[1]}"; ./modules/virtualization.sh ;;
-      2) fmtr::box_text "${options[2]}"; ./modules/qemu.sh ;;
-      3) fmtr::box_text "${options[3]}"; ./modules/edk2.sh ;;
-      4) fmtr::box_text "${options[4]}"; ./modules/vfio.sh ;;
-      5) fmtr::box_text "${options[5]}"; fmtr::warn "This module isn't ready yet." ;; #./modules/kernel.sh ;;
-      6) fmtr::box_text "${options[6]}"; fmtr::warn "This module isn't ready yet." ;; #./modules/lg.sh ;;
-      7) fmtr::box_text "${options[7]}"; ./modules/deploy.sh ;;
-      0)
-        prmt::yes_or_no "$(fmtr::ask 'Do you want to clear the logs directory?')" &&
-          rm -f -- "${LOG_PATH}"/*.log
-        exit 0
-        ;;
-      *) fmtr::error "Invalid option, please try again." ;;
-    esac
+    if [[ $choice == 0 ]]; then
+      prmt::yes_or_no "$(fmtr::ask 'Do you want to clear the logs directory?')" &&
+        rm -f -- "${LOG_PATH}"/*.log
+      exit 0
+    fi
+
+    # Validate selection
+    if [[ -n "${menu[$choice]}" ]]; then
+      local label="${menu[$choice]%%|*}"
+      local script="${menu[$choice]#*|}"
+
+      fmtr::box_text "$label"
+      if [[ -n "$script" ]]; then
+        ./modules/"$script"
+      else
+        fmtr::warn "This module isn't ready yet."
+      fi
+    else
+      fmtr::error "Invalid option, please try again."
+    fi
 
     prmt::quick_prompt "$(fmtr::info 'Press any key to continue...')"
   done
 }
+
+
+
+
 
 main() {
   check_non_root
