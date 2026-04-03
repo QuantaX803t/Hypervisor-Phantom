@@ -357,6 +357,142 @@ QEMU XML:
 
 
 
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# libtpms/swtpm (TPM)
+
+<details>
+<summary>Expand for details...</summary>
+
+- https://github.com/stefanberger/swtpm
+- https://github.com/stefanberger/libtpms
+
+## Layer 1: libtpms (Runtime Identity)
+
+> What Windows reads via `TPM2_GetCapability` (`tpm.msc`, `Get-Tpm`, Device Manager)
+
+Edit [`src/tpm2/TPMCmd/Platform/src/VendorInfo.c`](https://github.com/stefanberger/libtpms/blob/master/src/tpm2/TPMCmd/Platform/src/VendorInfo.c):
+
+| Define | TPM Property | Default |
+|---|---|---|
+| `MANUFACTURER` | `TPM_PT_MANUFACTURER` | `"IBM"` |
+| `VENDOR_STRING_1` | `TPM_PT_VENDOR_STRING_1` | `"SW  "` |
+| `VENDOR_STRING_2` | `TPM_PT_VENDOR_STRING_2` | `" TPM"` |
+| `VENDOR_STRING_3` | `TPM_PT_VENDOR_STRING_3` | `"\0\0\0\0"` |
+| `VENDOR_STRING_4` | `TPM_PT_VENDOR_STRING_4` | `"\0\0\0\0"` |
+| `FIRMWARE_V1` | `TPM_PT_FIRMWARE_VERSION_1` | `0x20240125` |
+| `FIRMWARE_V2` | `TPM_PT_FIRMWARE_VERSION_2` | `0x00120000` |
+
+Common manufacturer codes (4-byte ASCII → uint32):
+| Code | Manufacturer |
+|---|---|
+| `INTC` | Intel |
+| `AMD\0` | AMD |
+| `MSFT` | Microsoft |
+| `IFX\0` | Infineon |
+| `STM\0` | STMicroelectronics |
+
+```bash
+git clone https://github.com/stefanberger/libtpms.git && cd libtpms
+# Edit src/tpm2/TPMCmd/Platform/src/VendorInfo.c
+./autogen.sh --with-tpm2 --with-openssl
+make -j$(nproc) && sudo make install && sudo ldconfig
+```
+
+## Layer 2: swtpm Certificates (EK & Platform certs)
+
+> What certificate-based attestation reads
+
+Edit [`swtpm-localca.options`](https://github.com/stefanberger/swtpm/blob/master/samples/swtpm-localca.options):
+
+```
+--platform-manufacturer <name>
+--platform-version <version>
+--platform-model <model>
+```
+
+Or pass directly during setup:
+
+```bash
+swtpm_setup --tpm2 --tpmstate dir=<path> \
+  --create-ek-cert --create-platform-cert --lock-nvram
+```
+
+Available CLI args (via `swtpm_cert` / `swtpm_localca`):
+
+| Arg | What it sets |
+|---|---|
+| `--tpm-manufacturer <name>` | TPM manufacturer (e.g. `id:494E5443`) |
+| `--tpm-model <model>` | TPM model (e.g. `swtpm`) |
+| `--tpm-version <version>` | TPM firmware version |
+| `--platform-manufacturer <name>` | Platform manufacturer |
+| `--platform-model <model>` | Platform model |
+| `--platform-version <version>` | Platform version |
+| `--tpm-spec-family <family>` | Spec family (e.g. `2.0`) |
+| `--tpm-spec-level <level>` | Spec level (integer) |
+| `--tpm-spec-revision <rev>` | Spec revision (integer) |
+
+## Rebuild swtpm
+
+```bash
+git clone https://github.com/stefanberger/swtpm.git && cd swtpm
+./autogen.sh && ./configure
+make -j$(nproc) && sudo make install
+```
+
+## Re-provision TPM State
+
+> ⚠️ Delete existing TPM state first — old identity is baked into persistent state.
+
+```bash
+rm -f <tpmstate_dir>/tpm2-*
+swtpm_setup --tpm2 --tpmstate dir=<tpmstate_dir> \
+  --create-ek-cert --create-platform-cert --lock-nvram
+```
+
+## Verify (Windows Guest)
+
+```powershell
+# PowerShell
+Get-Tpm
+(Get-WmiObject -Namespace "root\cimv2\security\microsofttpm" -Class Win32_Tpm).ManufacturerIdTxt
+```
+
+Or open `tpm.msc` → "TPM Manufacturer Information"
+
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
