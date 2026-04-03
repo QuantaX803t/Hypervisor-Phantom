@@ -7,6 +7,12 @@
 
 
 
+---
+
+
+
+
+
 ## QEMU
 
 #### clone
@@ -25,6 +31,12 @@ git diff HEAD > "v11.0.0.patch"
 ```
 git apply < "v11.0.0.patch"
 ```
+
+
+
+
+
+---
 
 
 
@@ -51,6 +63,12 @@ git apply < "edk2-stable202602.patch"
 
 
 
+---
+
+
+
+
+
 ## SWTPM
 
 #### clone
@@ -69,3 +87,9 @@ git diff HEAD > "v0.10.1.patch"
 ```
 git apply < "v0.10.1.patch"
 ```
+
+
+
+
+
+---
