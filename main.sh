@@ -85,45 +85,43 @@ cpu_detect() {
 
 
 main_menu() {
-  # Option labels and corresponding module scripts (empty = not ready)
-  declare -A menu=(
-    [1]="Virtualization Setup|virtualization.sh"
-    [2]="QEMU (Patched) Setup|qemu.sh"
-    [3]="EDK2 (Patched) Setup|edk2.sh"
-    [4]="GPU Passthrough Setup|vfio.sh"
-    [5]="Kernel (Patched) Setup|"
-    [6]="Looking Glass Setup|"
-    [7]="Deploy Auto/Unattended XML|deploy.sh"
+  local menu=(
+    "Virtualization Setup|virtualization.sh"
+    "QEMU (Patched) Setup|qemu.sh"
+    "EDK2 (Patched) Setup|edk2.sh"
+    "GPU Passthrough Setup|vfio.sh"
+    "Kernel (Patched) Setup|"
+    "Looking Glass Setup|"
+    "Deploy Auto/Unattended XML|deploy.sh"
   )
 
-  local EXIT_OPTION="Exit"
+  # Handle Ctrl+C
+  trap '
+    clear & echo
+    if prmt::yes_or_no "$(fmtr::ask "Do you want to clear the logs directory?")"; then
+      rm -f -- "${LOG_PATH}"/*.log
+    fi
+    exit 0
+  ' INT
 
   while :; do
     clear
     fmtr::box_text " >> AutoVirt << "; echo ""
 
-    # Print menu
     for i in "${!menu[@]}"; do
-      local label="${menu[$i]%%|*}"
-      printf '  %b[%d]%b %s\n' "$TEXT_BRIGHT_YELLOW" "$i" "$RESET" "$label"
+      printf '  %b[%d]%b %s\n' \
+        "$TEXT_BRIGHT_YELLOW" "$((i+1))" "$RESET" "${menu[i]%%|*}"
     done
-    printf '\n  %b[0]%b %s\n\n' "$TEXT_BRIGHT_RED" "$RESET" "$EXIT_OPTION"
+    echo
 
-    # Prompt
     local choice
-    choice="$(prmt::quick_prompt '  Enter your choice [0-7]: ')" || continue
+    choice="$(prmt::quick_prompt '  Enter your choice [1-7]: ')" || continue
     clear
 
-    if [[ $choice == 0 ]]; then
-      prmt::yes_or_no "$(fmtr::ask 'Do you want to clear the logs directory?')" &&
-        rm -f -- "${LOG_PATH}"/*.log
-      exit 0
-    fi
-
-    # Validate selection
-    if [[ -n "${menu[$choice]}" ]]; then
-      local label="${menu[$choice]%%|*}"
-      local script="${menu[$choice]#*|}"
+    if (( choice >= 1 && choice <= ${#menu[@]} )); then
+      local idx=$((choice - 1))
+      local label="${menu[idx]%%|*}"
+      local script="${menu[idx]#*|}"
 
       fmtr::box_text "$label"
       if [[ -n "$script" ]]; then
