@@ -18,21 +18,30 @@ check_non_root() {
 
 detect_distro() {
   local EXPERIMENTAL=${EXPERIMENTAL:-0}
-  local id=""
+  local id="" DISTRO=""
 
   if [[ -r /etc/os-release ]]; then
     . /etc/os-release
     id=${ID,,}
   fi
 
-  case "$id" in
-    arch|manjaro|endeavouros|arcolinux|garuda|artix)
-      DISTRO="Arch"
-      ;;
-    *)
-      if command -v pacman >/dev/null 2>&1 && [[ -d /etc/pacman.d ]]; then
-        DISTRO="Arch"
-      elif (( EXPERIMENTAL )); then
+  if [[ $id =~ ^(arch|manjaro|endeavouros|arcolinux|garuda|artix)$ ]] ||
+     { command -v pacman >/dev/null 2>&1 && [[ -d /etc/pacman.d ]]; }; then
+    DISTRO="Arch"
+
+  # Experimental mode
+  elif (( EXPERIMENTAL )); then
+    case "$id" in
+      opensuse-*|sles)
+        DISTRO="openSUSE"
+        ;;
+      debian|ubuntu|linuxmint|kali|pureos|pop|elementary|zorin|mx|parrot|deepin|peppermint|trisquel|bodhi|linuxlite|neon)
+        DISTRO="Debian"
+        ;;
+      fedora|centos|rhel|rocky|alma|oracle)
+        DISTRO="Fedora"
+        ;;
+      *)
         if command -v apt >/dev/null 2>&1; then
           DISTRO="Debian"
         elif command -v zypper >/dev/null 2>&1; then
@@ -42,11 +51,12 @@ detect_distro() {
         else
           fmtr::fatal "${id:-Unknown} distro isn't supported."
         fi
-      else
-        fmtr::fatal "${id:-Unknown} distro isn't supported (Arch only)."
-      fi
-      ;;
-  esac
+        ;;
+    esac
+
+  else
+    fmtr::fatal "${id:-Unknown} distro isn't supported (Arch only)."
+  fi
 
   export DISTRO
   readonly DISTRO
