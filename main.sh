@@ -6,7 +6,7 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
 
 
-check_non_root() {
+detect_root() {
   if [[ $EUID -eq 0 ]]; then
     fmtr::fatal "Do not run as root.\n"
     exit 1
@@ -16,9 +16,10 @@ check_non_root() {
 
 
 
+
 detect_distro() {
-  local EXPERIMENTAL=${EXPERIMENTAL:-0}
-  local id="" DISTRO=""
+  EXPERIMENTAL=${EXPERIMENTAL:-0}
+  local id=""
 
   if [[ -r /etc/os-release ]]; then
     . /etc/os-release
@@ -58,33 +59,35 @@ detect_distro() {
     fmtr::fatal "${id:-Unknown} distro isn't supported (Arch only)."
   fi
 
-  export DISTRO
-  readonly DISTRO
+  export DISTRO EXPERIMENTAL
+  readonly DISTRO EXPERIMENTAL
 }
 
 
 
 
 
-cpu_detect() {
-  local cpuinfo
-  cpuinfo=$(</proc/cpuinfo)
+detect_cpu() {
+  local line
 
-  case "$cpuinfo" in
-    *GenuineIntel*)
-      CPU_VENDOR_ID="GenuineIntel"
-      CPU_VIRTUALIZATION="vmx"
-      CPU_MANUFACTURER="Intel"
-      ;;
-    *AuthenticAMD*)
-      CPU_VENDOR_ID="AuthenticAMD"
-      CPU_VIRTUALIZATION="svm"
-      CPU_MANUFACTURER="AMD"
-      ;;
-    *)
-      fmtr::fatal "Unsupported CPU vendor"
-      ;;
-  esac
+  while IFS= read -r line; do
+    case "$line" in
+      *GenuineIntel*)
+        CPU_VENDOR_ID="GenuineIntel"
+        CPU_VIRTUALIZATION="vmx"
+        CPU_MANUFACTURER="Intel"
+        break
+        ;;
+      *AuthenticAMD*)
+        CPU_VENDOR_ID="AuthenticAMD"
+        CPU_VIRTUALIZATION="svm"
+        CPU_MANUFACTURER="AMD"
+        break
+        ;;
+    esac
+  done < /proc/cpuinfo
+
+  [[ -n $CPU_VENDOR_ID ]] || fmtr::fatal "Unsupported CPU vendor"
 
   export CPU_VENDOR_ID CPU_VIRTUALIZATION CPU_MANUFACTURER
   readonly CPU_VENDOR_ID CPU_VIRTUALIZATION CPU_MANUFACTURER
@@ -152,9 +155,9 @@ main_menu() {
 
 
 main() {
-  check_non_root
+  detect_root
   detect_distro
-  cpu_detect
+  detect_cpu
   main_menu
 }
 
