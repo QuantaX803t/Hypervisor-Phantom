@@ -8,7 +8,7 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
 readonly SRC_DIR="$(pwd)/src"
 
-readonly TKG_URL="https://github.com/Frogging-Family/linux-tkg.git"
+readonly TKG_URI="https://github.com/Frogging-Family/linux-tkg.git"
 readonly TKG_DIR="linux-tkg"
 
 readonly KERNEL_MAJOR="6"
@@ -45,8 +45,8 @@ acquire_tkg_source() {
     mkdir -p "$SRC_DIR" && cd "$SRC_DIR" || { fmtr::fatal "Failed to enter source dir: $SRC_DIR"; exit 1; }
 
     clone_repo() {
-        fmtr::info "Cloning '$TKG_DIR' from '$TKG_URL'..."
-        git clone --depth=1 "$TKG_URL" "$TKG_DIR" &>>"$LOG_FILE" \
+        fmtr::info "Cloning '$TKG_DIR' from '$TKG_URI'..."
+        git clone --depth=1 "$TKG_URI" "$TKG_DIR" &>>"$LOG_FILE" \
         || { fmtr::fatal "Failed to clone repository!"; exit 1; }
         cd "$TKG_DIR" || { fmtr::fatal "Missing '$TKG_DIR' directory!"; exit 1; }
 
@@ -60,7 +60,7 @@ acquire_tkg_source() {
         if prmt::yes_or_no "$(fmtr::ask "Purge '$TKG_DIR' directory?")"; then
         rm -rf "$TKG_DIR" || { fmtr::fatal "Failed to purge '$TKG_DIR' directory!"; exit 1; }
         fmtr::info "Directory purged successfully."
-        if prmt::yes_or_no "$(fmtr::ask "Clone '$TKG_URL' again?")"; then
+        if prmt::yes_or_no "$(fmtr::ask "Clone '$TKG_URI' again?")"; then
             clone_repo
         else
             fmtr::info "Skipping..."

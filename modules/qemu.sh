@@ -9,7 +9,7 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
-readonly QEMU_URL="https://github.com/qemu/qemu.git"
+readonly QEMU_URI="https://github.com/qemu/qemu.git"
 readonly QEMU_TAG="v11.0.0"
 
 readonly QEMU_PATCH="$(pwd)/patches/QEMU/${QEMU_TAG}.patch"
@@ -90,8 +90,8 @@ acquire_qemu_source() {
   mkdir -p "$SRC_DIR" && cd "$SRC_DIR" || { fmtr::fatal "Failed to enter source dir: $SRC_DIR"; exit 1; }
 
   clone_repo() {
-    fmtr::info "Cloning '$QEMU_TAG' from '$QEMU_URL'..."
-    git clone --depth=1 --branch "$QEMU_TAG" "$QEMU_URL" "$QEMU_TAG" &>>"$LOG_FILE" \
+    fmtr::info "Cloning '$QEMU_TAG' from '$QEMU_URI'..."
+    git clone --depth=1 --branch "$QEMU_TAG" "$QEMU_URI" "$QEMU_TAG" &>>"$LOG_FILE" \
       || { fmtr::fatal "Failed to clone repository!"; exit 1; }
     cd "$QEMU_TAG" || { fmtr::fatal "Missing '$QEMU_TAG' directory!"; exit 1; }
     patch_qemu
@@ -102,7 +102,7 @@ acquire_qemu_source() {
     if prmt::yes_or_no "$(fmtr::ask "Purge '$QEMU_TAG' directory?")"; then
       rm -rf "$QEMU_TAG" || { fmtr::fatal "Failed to purge '$QEMU_TAG' directory!"; exit 1; }
       fmtr::info "Directory purged successfully."
-      if prmt::yes_or_no "$(fmtr::ask "Clone '$QEMU_URL' repository again?")"; then
+      if prmt::yes_or_no "$(fmtr::ask "Clone '$QEMU_URI' repository again?")"; then
         clone_repo
       else
         fmtr::info "Skipping..."

@@ -9,7 +9,7 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
-readonly EDK2_URL="https://github.com/tianocore/edk2.git"
+readonly EDK2_URI="https://github.com/tianocore/edk2.git"
 readonly EDK2_TAG="edk2-stable202602"
 
 readonly OVMF_PATCH="$(pwd)/patches/EDK2/${EDK2_TAG}.patch"
@@ -42,8 +42,8 @@ acquire_edk2_source() {
   mkdir -p "$SRC_DIR" && cd "$SRC_DIR" || { fmtr::fatal "Failed to enter source dir: $SRC_DIR"; exit 1; }
 
   clone_repo() {
-    fmtr::info "Cloning '$EDK2_TAG' from '$EDK2_URL'..."
-    git clone --depth=1 --branch="$EDK2_TAG" "$EDK2_URL" "$EDK2_TAG" &>>"$LOG_FILE" \
+    fmtr::info "Cloning '$EDK2_TAG' from '$EDK2_URI'..."
+    git clone --depth=1 --branch="$EDK2_TAG" "$EDK2_URI" "$EDK2_TAG" &>>"$LOG_FILE" \
     || { fmtr::fatal "Clone failed!"; exit 1; }
 
     cd "$EDK2_TAG" || { fmtr::fatal "Missing '$EDK2_TAG' directory!"; exit 1; }
@@ -60,7 +60,7 @@ acquire_edk2_source() {
     if prmt::yes_or_no "$(fmtr::ask "Purge '$EDK2_TAG' directory?")"; then
       rm -rf "$EDK2_TAG" || { fmtr::fatal "Failed to purge '$EDK2_TAG' directory!"; exit 1; }
       fmtr::info "Directory purged successfully."
-      if prmt::yes_or_no "$(fmtr::ask "Clone '$EDK2_URL' repository again?")"; then
+      if prmt::yes_or_no "$(fmtr::ask "Clone '$EDK2_URI' repository again?")"; then
         clone_repo
       else
         fmtr::info "Skipping..."
