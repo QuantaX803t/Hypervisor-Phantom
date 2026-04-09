@@ -20,7 +20,7 @@ for name in ("product_serial", "board_serial", "chassis_serial"):
 
 for p in Path("/sys/firmware/dmi/entries/").glob("17-*/raw"):
     for s in get_bytes(p)[2:].split(b'\x00'):
-        if len(s) == 8 and s.isalnum() and not s.isalpha() and not s.isdigit():
+        if len(s) == 8 and s.isalnum():
             data = data.replace(s.lower(), b"00000000").replace(s.upper(), b"00000000")
 
 if data:
