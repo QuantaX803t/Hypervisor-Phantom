@@ -304,7 +304,7 @@ build_ovmf() {
 cleanup() {
   fmtr::info "Cleaning up..."
   rm -rf "$SRC_DIR/$EDK2_TAG"
-  rmdir --ignore-fail-on-non-empty "$SRC_DIR" 2>/dev/null || true
+  rmdir "$SRC_DIR" 2>/dev/null
 }
 
 
