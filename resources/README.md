@@ -51,6 +51,10 @@ amdgpu.sg_display=0
   - [pcisig.com](https://pcisig.com/specifications)
     - [PCI Code and ID Assignment Specification Revision 1.19](https://members.pcisig.com/document/dl/22472)
     - [PCILookup](https://www.pcilookup.com/)
+  - [www.usb.org](https://www.usb.org/)
+    - [Device Class Definition for HID](https://www.usb.org/sites/default/files/hid1_11.pdf)
+    - [HID Usage Tables](https://www.usb.org/sites/default/files/hut1_7.pdf)
+    - [Defined Class Codes](https://www.usb.org/defined-class-codes)
 - **Blogs**
   - [https://evasions.checkpoint.com/](https://evasions.checkpoint.com/)
   - [https://r0ttenbeef.github.io/](https://r0ttenbeef.github.io/Deploy-Hidden-Virtual-Machine-For-VMProtections-Evasion-And-Dynamic-Analysis/)
