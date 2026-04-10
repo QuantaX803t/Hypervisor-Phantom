@@ -16,11 +16,13 @@ REQUIRED_PKGS_Debian=(
   qemu-system-x86 ovmf virt-manager libvirt-clients swtpm
   libvirt-daemon-system libvirt-daemon-config-network
 )
+
 # EXPERIMENTAL
 REQUIRED_PKGS_openSUSE=(
   libvirt libvirt-client libvirt-daemon virt-manager
   qemu qemu-kvm ovmf qemu-tools swtpm
 )
+
 # EXPERIMENTAL
 REQUIRED_PKGS_Fedora=(
   @virtualization swtpm
