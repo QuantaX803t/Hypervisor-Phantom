@@ -49,6 +49,7 @@ REQUIRED_PKGS_Debian=(
   libusbredirhost-dev libusbredirparser-dev
 )
 
+# EXPERIMENTAL
 REQUIRED_PKGS_openSUSE=(
   # Basic Build Dependencie(s)
   acpica bzip2 gcc-c++ gpg2 glib2-devel make qemu
@@ -64,6 +65,7 @@ REQUIRED_PKGS_openSUSE=(
   libusbredir-devel
 )
 
+# EXPERIMENTAL
 REQUIRED_PKGS_Fedora=(
   # Basic Build Dependencie(s)
   acpica-tools bzip2 glib2-devel libfdt-devel ninja-build
