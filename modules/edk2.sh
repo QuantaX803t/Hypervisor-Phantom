@@ -19,17 +19,39 @@ readonly OVMF_PATCH="$(pwd)/patches/EDK2/${EDK2_TAG}.patch"
 
 
 REQUIRED_PKGS_Arch=(
-  # OVMF build dependencies
+  # build dependencies
   base-devel nasm acpica
 
   # script dependencies
-  git patch virt-firmware
+  git virt-firmware
 )
 
 # EXPERIMENTAL
-REQUIRED_PKGS_Debian=(build-essential uuid-dev acpica-tools git nasm python-is-python3 patch python3-virt-firmware)
-REQUIRED_PKGS_openSUSE=(gcc gcc-c++ make acpica git nasm python3 libuuid-devel patch virt-firmware)
-REQUIRED_PKGS_Fedora=(gcc gcc-c++ make acpica-tools git nasm python3 libuuid-devel patch python3-virt-firmware)
+REQUIRED_PKGS_Debian=(
+  # build dependencies
+  build-essential nasm acpica-tools uuid-dev
+
+  # script dependencies
+  git python-is-python3 python3-virt-firmware
+)
+
+# EXPERIMENTAL
+REQUIRED_PKGS_openSUSE=(
+  # build dependencies
+  gcc gcc-c++ make nasm acpica libuuid-devel
+
+  # script dependencies
+  git python3 virt-firmware
+)
+
+# EXPERIMENTAL
+REQUIRED_PKGS_Fedora=(
+  # build dependencies
+  gcc gcc-c++ make nasm acpica-tools libuuid-devel
+
+  # script dependencies
+  git python3 python3-virt-firmware
+)
 
 
 
