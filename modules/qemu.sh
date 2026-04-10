@@ -32,6 +32,7 @@ REQUIRED_PKGS_Arch=(
   usbredir
 )
 
+# EXPERIMENTAL
 REQUIRED_PKGS_Debian=(
   # Basic Build Dependencie(s)
   acpica-tools build-essential libfdt-dev libglib2.0-dev
