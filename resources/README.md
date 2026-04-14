@@ -30,7 +30,7 @@ amdgpu.sg_display=0
 
 
 
-## 📝 Documentation
+## 📚 References
 
 <details>
 <summary>Expand for details...</summary>
