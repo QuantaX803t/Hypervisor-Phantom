@@ -11,8 +11,8 @@ readonly SRC_DIR="$(pwd)/src"
 readonly TKG_URI="https://github.com/Frogging-Family/linux-tkg.git"
 readonly TKG_DIR="linux-tkg"
 
-readonly KERNEL_MAJOR="6"
-readonly KERNEL_MINOR="18"
+readonly KERNEL_MAJOR="7"
+readonly KERNEL_MINOR="0"
 readonly KERNEL_PATCH="latest"
 readonly KERNEL_VERSION="${KERNEL_MAJOR}.${KERNEL_MINOR}-${KERNEL_PATCH}"
 
