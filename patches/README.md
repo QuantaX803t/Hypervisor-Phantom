@@ -17,7 +17,7 @@
 
 #### clone
 ```
-git clone --depth=1 --branch "v11.0.0" "https://gitlab.com/qemu-project/qemu.git"
+git clone --depth=1 --branch "v11.0.0" "https://github.com/qemu/qemu.git"
 ```
 
 #### diff
