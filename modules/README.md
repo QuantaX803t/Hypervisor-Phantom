@@ -522,12 +522,10 @@ Or open `tpm.msc` → "TPM Manufacturer Information"
 ---
 
 - KVM CPUID signature leaf (`KVMKVMKVM` at `0x40000000`) and feature leaf (`0x40000001`)
-  - Returns the literal string `"KVMKVMKVM\0\0\0"` in EBX/ECX/EDX.
   - Documentation:
     - https://github.com/torvalds/linux/blob/master/Documentation/virt/kvm/x86/cpuid.rst
-  - Code (definitions of `KVM_CPUID_SIGNATURE`, `KVM_SIGNATURE`, `KVM_CPUID_FEATURES`, all `KVM_FEATURE_*` bits):
+  - Code:
     - https://github.com/torvalds/linux/blob/master/arch/x86/include/uapi/asm/kvm_para.h
-  - Code (where the host fills in those leaves for the guest):
     - https://github.com/torvalds/linux/blob/master/arch/x86/kvm/cpuid.c
 
 ---
@@ -543,6 +541,14 @@ Or open `tpm.msc` → "TPM Manufacturer Information"
 - `IA32_APERF` and `IA32_MPERF` MSRs (`KVM_X86_DISABLE_EXITS_APERFMPERF`) 
   - Documentation:
     - https://github.com/torvalds/linux/blob/master/Documentation/virt/kvm/api.rst#713-kvm_cap_x86_disable_exits
+  - Code:
+    - UAPI flag: https://github.com/torvalds/linux/blob/master/include/uapi/linux/kvm.h
+    - Helper `kvm_aperfmperf_in_guest()`: https://github.com/torvalds/linux/blob/master/arch/x86/kvm/x86.h
+    - Intel/VMX passthrough: https://github.com/torvalds/linux/blob/master/arch/x86/kvm/vmx/vmx.c
+    - Intel/VMX nested: https://github.com/torvalds/linux/blob/master/arch/x86/kvm/vmx/nested.c
+    - AMD/SVM passthrough: https://github.com/torvalds/linux/blob/master/arch/x86/kvm/svm/svm.c
+    - AMD/SVM nested: https://github.com/torvalds/linux/blob/master/arch/x86/kvm/svm/nested.c
+    - Selftest: https://github.com/torvalds/linux/blob/master/tools/testing/selftests/kvm/x86/aperfmperf_test.c
 
 ---
 
