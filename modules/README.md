@@ -508,12 +508,49 @@ Or open `tpm.msc` → "TPM Manufacturer Information"
 <details>
 <summary>Expand for details...</summary>
 
+---
+
 - Kernel Paramaters:
   - https://github.com/torvalds/linux/blob/master/Documentation/admin-guide/kernel-parameters.txt
- 
-- KVM MSRs
-  - https://docs.kernel.org/virt/kvm/x86/msr.html
-  - https://github.com/torvalds/linux/blob/master/arch/x86/include/uapi/asm/kvm_para.h
+
+---
+
+- CPUID hypervisor-present bit (`CPUID.1:ECX[31]`)
+  - Code (set in guest CPUID):
+    - https://github.com/torvalds/linux/blob/master/arch/x86/kvm/cpuid.c
+
+---
+
+- KVM CPUID signature leaf (`KVMKVMKVM` at `0x40000000`) and feature leaf (`0x40000001`)
+  - Returns the literal string `"KVMKVMKVM\0\0\0"` in EBX/ECX/EDX.
+  - Documentation:
+    - https://github.com/torvalds/linux/blob/master/Documentation/virt/kvm/x86/cpuid.rst
+  - Code (definitions of `KVM_CPUID_SIGNATURE`, `KVM_SIGNATURE`, `KVM_CPUID_FEATURES`, all `KVM_FEATURE_*` bits):
+    - https://github.com/torvalds/linux/blob/master/arch/x86/include/uapi/asm/kvm_para.h
+  - Code (where the host fills in those leaves for the guest):
+    - https://github.com/torvalds/linux/blob/master/arch/x86/kvm/cpuid.c
+
+---
+
+- KVM-specific MSRs (paravirt MSR range `0x4b564d00`–`0x4b564dff`, plus legacy `0x11`/`0x12`)
+  - Documentation:
+    - https://github.com/torvalds/linux/blob/master/Documentation/virt/kvm/x86/msr.rst
+  - Code:
+    - https://github.com/torvalds/linux/blob/master/arch/x86/include/uapi/asm/kvm_para.h
+
+---
+
+- `IA32_APERF` and `IA32_MPERF` MSRs (`KVM_X86_DISABLE_EXITS_APERFMPERF`) 
+  - Documentation:
+    - https://github.com/torvalds/linux/blob/master/Documentation/virt/kvm/api.rst#713-kvm_cap_x86_disable_exits
+
+---
+
+- KVM Hypercall (`VMCALL` on Intel / `VMMCALL` on AMD)
+  - Documentation:
+    - https://github.com/torvalds/linux/blob/master/Documentation/virt/kvm/x86/hypercalls.rst
+
+---
 
 </details>
 
