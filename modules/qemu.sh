@@ -306,25 +306,17 @@ compile_qemu() {
               --enable-spice \
               --enable-spice-protocol \
               --disable-werror \
-              --disable-docs &>> "$LOG_FILE"
-
-  if [[ $? -ne 0 ]]; then
-    fmtr::error "Configuration failed; Check $LOG_FILE"
-    return 1
-  fi
+              --disable-docs &>> "$LOG_FILE" \
+  || { fmtr::error "Configuration failed; Check $LOG_FILE"; return 1; }
 
   fmtr::info "Compiling QEMU..."
-  make -j"$(nproc)" &>> "$LOG_FILE"
-  if [[ $? -ne 0 ]]; then
-    fmtr::error "Compilation failed; Check $LOG_FILE"
-    return 1
-  fi
 
-  $ROOT_ESC make install &>> "$LOG_FILE"
-  if [[ $? -ne 0 ]]; then
-    fmtr::error "Install failed; Check $LOG_FILE"
-    return 1
-  fi
+  make -j"$(nproc)" &>> "$LOG_FILE" \
+  || { fmtr::error "Compilation failed; Check $LOG_FILE"; return 1; }
+
+  $ROOT_ESC make install &>> "$LOG_FILE" \
+  || { fmtr::error "Install failed; Check $LOG_FILE"; return 1; }
+
   fmtr::log "Installed QEMU at '$OUT_DIR/emulator'"
 }
 
