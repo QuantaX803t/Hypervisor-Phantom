@@ -277,9 +277,9 @@ spoof_acpi() {
 
 
 
-spoof_smbios() {
-  # TODO: Implement smbios.bin spoofer
-}
+#spoof_smbios() {
+#  # TODO: Implement smbios.bin spoofer
+#}
 
 
 
