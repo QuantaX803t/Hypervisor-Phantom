@@ -24,25 +24,29 @@ This project automates complex Linux virtualization tasks.
 <summary>Expand for details...</summary>
 
 #### 1. Clone Git repository
-```
+```sh
 git clone --single-branch --depth=1 https://github.com/Scrut1ny/AutoVirt
 ```
 
 #### 2. Change directory
-```
+```sh
 cd AutoVirt/
 ```
 
 #### 3. Execute
-```
+```sh
 ./main.sh
+```
+- Experimental distro support:
+```sh
+EXPERIMENTAL=1 ./main.sh
 ```
 
 ---
 
 ### 4. Update repository
 - ***Make sure you're in the `AutoVirt/` root directory when running the command below!***
-```
+```sh
 git fetch --all && git reset --hard origin/main
 ```
 
