@@ -2,29 +2,37 @@
 
 source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
+
+
+
+
 readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
-readonly QEMU_TAG="v10.2.0"
-readonly QEMU_URL="https://gitlab.com/qemu-project/qemu.git"
+readonly QEMU_URI="https://github.com/qemu/qemu.git"
+readonly QEMU_TAG="${CPU_MANUFACTURER}-v11.0.0"
 
-readonly QEMU_PATCH="$(pwd)/patches/QEMU/${CPU_MANUFACTURER}-${QEMU_TAG}.patch"
+readonly QEMU_PATCH="$(pwd)/patches/QEMU/${QEMU_TAG}.patch"
+
+
+
+
 
 REQUIRED_PKGS_Arch=(
-  # Basic Build Dependencie(s)
-  acpica base-devel dmidecode glib2 ninja python-packaging
-  python-sphinx python-sphinx_rtd_theme gnupg libevdev
+  # build dependencies
+  base-devel ninja
 
-  # Spice Dependencie(s)
-  spice gtk3
+  # spice
+  spice
 
-  # USB passthrough Dependencie(s)
+  # usb pass-through
   libusb
 
-  # USB redirection Dependencie(s)
+  # usb redirection
   usbredir
 )
 
+# EXPERIMENTAL
 REQUIRED_PKGS_Debian=(
   # Basic Build Dependencie(s)
   acpica-tools build-essential libfdt-dev libglib2.0-dev
@@ -41,6 +49,7 @@ REQUIRED_PKGS_Debian=(
   libusbredirhost-dev libusbredirparser-dev
 )
 
+# EXPERIMENTAL
 REQUIRED_PKGS_openSUSE=(
   # Basic Build Dependencie(s)
   acpica bzip2 gcc-c++ gpg2 glib2-devel make qemu
@@ -56,6 +65,7 @@ REQUIRED_PKGS_openSUSE=(
   libusbredir-devel
 )
 
+# EXPERIMENTAL
 REQUIRED_PKGS_Fedora=(
   # Basic Build Dependencie(s)
   acpica-tools bzip2 glib2-devel libfdt-devel ninja-build
@@ -71,6 +81,10 @@ REQUIRED_PKGS_Fedora=(
   usbredir-devel
 )
 
+
+
+
+
 ################################################################################
 # Acquire QEMU source
 ################################################################################
@@ -79,8 +93,8 @@ acquire_qemu_source() {
   mkdir -p "$SRC_DIR" && cd "$SRC_DIR" || { fmtr::fatal "Failed to enter source dir: $SRC_DIR"; exit 1; }
 
   clone_repo() {
-    fmtr::info "Cloning '$QEMU_TAG' from '$QEMU_URL'..."
-    git clone --depth=1 --branch "$QEMU_TAG" "$QEMU_URL" "$QEMU_TAG" &>>"$LOG_FILE" \
+    fmtr::info "Cloning '$QEMU_TAG' from '$QEMU_URI'..."
+    git clone --depth=1 --branch "$QEMU_TAG" "$QEMU_URI" "$QEMU_TAG" &>>"$LOG_FILE" \
       || { fmtr::fatal "Failed to clone repository!"; exit 1; }
     cd "$QEMU_TAG" || { fmtr::fatal "Missing '$QEMU_TAG' directory!"; exit 1; }
     patch_qemu
@@ -91,7 +105,7 @@ acquire_qemu_source() {
     if prmt::yes_or_no "$(fmtr::ask "Purge '$QEMU_TAG' directory?")"; then
       rm -rf "$QEMU_TAG" || { fmtr::fatal "Failed to purge '$QEMU_TAG' directory!"; exit 1; }
       fmtr::info "Directory purged successfully."
-      if prmt::yes_or_no "$(fmtr::ask "Clone '$QEMU_URL' repository again?")"; then
+      if prmt::yes_or_no "$(fmtr::ask "Clone '$QEMU_URI' repository again?")"; then
         clone_repo
       else
         fmtr::info "Skipping..."
@@ -111,35 +125,9 @@ patch_qemu() {
   fmtr::log "Applied '${CPU_MANUFACTURER}-${QEMU_TAG}.patch' successfully."
 
   fmtr::info "Applying dynamic modifications..."
-  #spoof_serials
   spoof_models
   spoof_acpi
   spoof_smbios
-}
-
-
-
-
-
-
-
-
-
-
-
-
-spoof_serials() {
-  local patterns=(STRING_SERIALNUMBER STR_SERIALNUMBER STR_SERIAL_MOUSE \
-                    STR_SERIAL_TABLET STR_SERIAL_KEYBOARD STR_SERIAL_COMPAT)
-
-  for file in ./hw/usb/*.c; do
-    for pat in "${patterns[@]}"; do
-      grep -n "\[\s*${pat}\s*\]\s*=\s*\"[^\"]*\"" "$file" | cut -d: -f1 | while read -r lineno; do
-        serial=$(tr -dc 'A-Z0-9' </dev/urandom | head -c10)
-        sed -r -i "${lineno}s/(\[\s*${pat}\s*\]\s*=\s*\")[^\"]*(\")/\1${serial}\2/" "$file"
-      done
-    done
-  done
 }
 
 
@@ -290,23 +278,6 @@ spoof_acpi() {
 
 
 spoof_smbios() {
-  local chipset_file
-
-  case "$QEMU_TAG" in
-    "v8.2.6")
-      chipset_file="hw/i386/pc_q35.c"
-      ;;
-    v9.*|v10.*.*)
-      chipset_file="hw/i386/fw_cfg.c"
-      ;;
-    *)
-      fmtr::warn "Unsupported QEMU version: $QEMU_TAG"
-      ;;
-  esac
-
-  local manufacturer=$($ROOT_ESC dmidecode --string processor-manufacturer)
-  sed -i "$chipset_file" -e "s/smbios_set_defaults(\"[^\"]*\",/smbios_set_defaults(\"${manufacturer}\",/"
-
   # TODO: Implement smbios.bin spoofer
 }
 
@@ -335,25 +306,17 @@ compile_qemu() {
               --enable-spice \
               --enable-spice-protocol \
               --disable-werror \
-              --disable-docs &>> "$LOG_FILE"
-
-  if [[ $? -ne 0 ]]; then
-    fmtr::error "Configuration failed; Check $LOG_FILE"
-    return 1
-  fi
+              --disable-docs &>> "$LOG_FILE" \
+  || { fmtr::error "Configuration failed; Check $LOG_FILE"; return 1; }
 
   fmtr::info "Compiling QEMU..."
-  make -j"$(nproc)" &>> "$LOG_FILE"
-  if [[ $? -ne 0 ]]; then
-    fmtr::error "Compilation failed; Check $LOG_FILE"
-    return 1
-  fi
 
-  $ROOT_ESC make install &>> "$LOG_FILE"
-  if [[ $? -ne 0 ]]; then
-    fmtr::error "Install failed; Check $LOG_FILE"
-    return 1
-  fi
+  make -j"$(nproc)" &>> "$LOG_FILE" \
+  || { fmtr::error "Compilation failed; Check $LOG_FILE"; return 1; }
+
+  $ROOT_ESC make install &>> "$LOG_FILE" \
+  || { fmtr::error "Install failed; Check $LOG_FILE"; return 1; }
+
   fmtr::log "Installed QEMU at '$OUT_DIR/emulator'"
 }
 
@@ -370,7 +333,7 @@ compile_qemu() {
 cleanup() {
   fmtr::info "Cleaning up..."
   rm -rf "$SRC_DIR/$QEMU_TAG"
-  rmdir --ignore-fail-on-non-empty "$SRC_DIR" 2>/dev/null || true
+  rmdir "$SRC_DIR" 2>/dev/null
 }
 
 

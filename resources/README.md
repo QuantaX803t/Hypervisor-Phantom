@@ -1,23 +1,7 @@
-## 🛠️ Common Troubleshooting
+## 🛠️ Troubleshooting
 
 <details>
 <summary>Expand for details...</summary>
-
-- Windows 11 BSOD - USBXHCI.sys
-  - Switch from USB3 to USB2 in VMM/XML
-
-- Windows 10/11 w/Secure Boot BSOD after 5-30 mins from boot
-  - Increase pagefile size inside Windows
-
-- Dumping host's SMBIOS for QEMU passthrough
-  - First try:
-  ```
-  sudo cat /sys/firmware/dmi/tables/{smbios_entry_point,DMI} > smbios.bin
-  ```
-  - Then try (if QEMU doesn't accept):
-  ```
-  sudo cat /sys/firmware/dmi/tables/DMI > smbios.bin
-  ```
 
 - Fix Ryzen 7000/9000 iGPUs "No Signal/Black Screen/flickering" when attempting to display the DM
 Add the arg below to your kernel options config:
@@ -27,6 +11,12 @@ amdgpu.sg_display=0
 - https://www.kernel.org/doc/html/latest/gpu/amdgpu/module-parameters.html
   - sg_display (int)
     - Disable S/G (scatter/gather) display (i.e., display from system memory). This option is only relevant on APUs. Set this option to 0 to disable S/G display if you experience flickering or other issues under memory pressure and report the issue.
+
+---
+
+- Hypervisor + VPN
+  - Custom DNS in guest while host VPN uses custom DNS may break internet.
+  - Turn on local network sharing in the host VPN so the guest has internet access.
 
 </details>
 
@@ -40,40 +30,42 @@ amdgpu.sg_display=0
 
 
 
-## 📝 Documentation & References
+## 📚 References
 
 <details>
 <summary>Expand for details...</summary>
 
-- **Official**
+- **Virtualization**
   - [QEMU’s documentation](https://www.qemu.org/docs/master/)
     - [Man Page (Args)](https://www.qemu.org/docs/master/system/qemu-manpage.html)
     - [Hyper-V Enlightenments](https://www.qemu.org/docs/master/system/i386/hyperv.html)
   - [KVM for x86 systems (Linux Kernel)](https://www.kernel.org/doc/html/next/virt/kvm/x86/index.html)
-  - [Domain XML format](https://libvirt.org/formatdomain.html)
-  - [ACPI System Management Bus Interface Specification - HTML](https://uefi.org/specs/ACPI/6.6/13_System_Mgmt_Bus_Interface_Specification.html) - [PDF Version](https://uefi.org/sites/default/files/resources/ACPI_Spec_6.6.pdf)
-  - [SMBIOS Reference Specification - PDF](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.9.0.pdf)
-  - [PCILookup](https://www.pcilookup.com/)
-- **General**
+  - [libvirt - Domain XML format](https://libvirt.org/formatdomain.html)
+- **Specifications**
+  - [www.dmtf.org](https://www.dmtf.org/standards/smbios)
+    - [SMBIOS](https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.9.0.pdf)
+  - [uefi.org](https://uefi.org/specifications)
+    - [ACPI](https://uefi.org/sites/default/files/resources/ACPI_Spec_6.6.pdf)
+      - [ACPI ID Registry](https://uefi.org/ACPI_ID_List)
+    - [UEFI](https://uefi.org/sites/default/files/resources/UEFI_Spec_Final_2.11.pdf)
+  - [pcisig.com](https://pcisig.com/specifications)
+    - [PCI Code and ID Assignment Specification Revision 1.19](https://members.pcisig.com/document/dl/22472)
+    - [PCILookup](https://www.pcilookup.com/)
+  - [www.usb.org](https://www.usb.org/)
+    - [Device Class Definition for HID](https://www.usb.org/sites/default/files/hid1_11.pdf)
+    - [HID Usage Tables](https://www.usb.org/sites/default/files/hut1_7.pdf)
+    - [Defined Class Codes](https://www.usb.org/defined-class-codes)
+- **Blogs**
   - [https://evasions.checkpoint.com/](https://evasions.checkpoint.com/)
   - [https://r0ttenbeef.github.io/](https://r0ttenbeef.github.io/Deploy-Hidden-Virtual-Machine-For-VMProtections-Evasion-And-Dynamic-Analysis/)
   - [https://secret.club/](https://secret.club/)
     - [how-anti-cheats-detect-system-emulation.html](https://secret.club/2020/04/13/how-anti-cheats-detect-system-emulation.html)
     - [battleye-hypervisor-detection.html](https://secret.club/2020/01/12/battleye-hypervisor-detection.html)
-- **Reddit**
-  - [spoof_and_make_your_vm_undetectable_no_more](https://www.reddit.com/r/VFIO/comments/i071qx/spoof_and_make_your_vm_undetectable_no_more/)
-  - [be_is_banning_kvm_on_r6](https://www.reddit.com/r/VFIO/comments/hts1o1/be_is_banning_kvm_on_r6/)
-- **Unknowncheats**
-  - [418885-kvm-detection-fixes.html](https://www.unknowncheats.me/forum/escape-from-tarkov/418885-kvm-detection-fixes.html) 
-- **Git Repos**
-  - [pve-patch](https://github.com/Distance10086/pve-patch)
-  - [pve-anti-detection](https://github.com/lixiaoliu666/pve-anti-detection)
-  - [proxmox-ve-anti-detection](https://github.com/zhaodice/proxmox-ve-anti-detection)
-  - [kvm-hidden](https://gitlab.com/DonnerPartyOf1/kvm-hidden)
-  - [KVM-Spoofing](https://github.com/A1exxander/KVM-Spoofing)
-  - [linux-5.15-hardened-kvm-svm-qemu-win10](https://alt.deliktas.de/git/adeliktas/linux-5.15-hardened-kvm-svm-qemu-win10)
-  - [sGPUpt](https://github.com/MaxxRK/sGPUpt)
-  - [gpupt](https://github.com/pragmagrid/gpupt)
+  - [https://revers.engineering/](https://revers.engineering/day-5-vmexits-interrupts-cpuid-emulation/)
+- **Git Repositories**
+  - [pve-emu-realpc](https://github.com/AICodo/pve-emu-realpc)
+  - [Nika-Read-Only](https://github.com/Ape-xCV/Nika-Read-Only)
+  - [qemu-anti-detection](https://github.com/zhaodice/qemu-anti-detection)
 
 </details>
 
@@ -88,60 +80,6 @@ amdgpu.sg_display=0
 
 
 ## 💾 Software
-<details>
-<summary>Software Assessments</summary>
-
-## Hypervisor Analysis
-
-| ⭐ Rating | 💻 Software | 🧪 System Test | ✅ Bypassed |
-|:------:|:--------:|:-----------:|:--------:|
-| 🥇 | VMAware | [Repository Link](https://github.com/kernelwernel/VMAware) <br> [⬇ Download - x64 - v2.6.0 ⬇](https://github.com/kernelwernel/VMAware/releases/download/v2.6.0/vmaware_2.6.0.exe) <br> [⬇ Download - x32 - v2.6.0 ⬇](https://github.com/kernelwernel/VMAware/releases/download/v2.6.0/vmaware32_2.6.0.exe) <br> [⬇ Download - DEBUG - v2.6.0 ⬇](https://github.com/kernelwernel/VMAware/releases/download/v2.6.0/vmaware_debug_2.6.0.exe) | ❌ |
-| 🥈 | Al-Khaser (Obsolete) | [Repository Link](https://github.com/LordNoteworthy/al-khaser) <br> [⬇ Download - x64 - v1.0.0 ⬇](https://github.com/ayoubfaouzi/al-khaser/releases/download/v1.0.0/al-khaser_x64.7z) <br> [⬇ Download - x32 - v1.0.0 ⬇](https://github.com/ayoubfaouzi/al-khaser/releases/download/v1.0.0/al-khaser_x86.7z) | ✅ |
-| 🥉 | Pafish (Obsolete) | [Repository Link](https://github.com/a0rtega/pafish) <br> [⬇ Download - x64 - v0.6 ⬇](https://github.com/a0rtega/pafish/releases/download/v0.6/pafish64.exe) <br> [⬇ Download - x32 - v0.6 ⬇](https://github.com/a0rtega/pafish/releases/download/v0.6/pafish.exe) | ✅ |
-
-## Exam/Test
-
-| 💻 Software | 🌐 Browser Extension | 🧪 System Test | ⬇️ Download | ✅ Bypassed |
-|:-----------:|:--------------------:|:--------------:|:-----------:|:------------:|
-| Respondus (LockDown Browser) | ✅ | [System Test](https://autolaunch.respondus2.com/MONServer/ldb/preview_launch.do) | [⬇ Download ⬇](https://download.respondus.com/lockdown/download.php) | ✅ |
-| ProctorU | ✅ |  | • [⬇ Firefox ⬇](https://s3-us-west-2.amazonaws.com/proctoru-assets/extension/firefox-extension-latest.xpi) <br> • [⬇ Chrome ⬇](https://chrome.google.com/webstore/detail/proctoru/goobgennebinldhonaajgafidboenlkl) | ✅ |
-| ProctorU: Guardian Browser |  | [System Test](https://go.proctoru.com/testitout) | • [⬇ Download ⬇](https://production-archimedes-secure-browser-artifacts.s3.amazonaws.com/latest/windows/guardian-browser-x64.exe) <br> • [Meazure Learning Page](https://guardian.meazurelearning.com/) <br> • [ProctorU Page](https://go.proctoru.com/testitout) | ✅ |
-| Proctorio | ✅ | [System Test](https://getproctorio.com/) |  | ✅ |
-| Prometric: ProProctor |  | [System Test](https://rpcandidate.prometric.com/) |  | ✅ |
-| Honorlock | ✅ |  | • [Honorlock](https://app.honorlock.com/install/extension) <br> • [⬇ Chrome ⬇](https://chromewebstore.google.com/detail/honorlock/hnbmpkmhjackfpkpcbapafmpepgmmddc) | ✅ |
-| Pearson VUE |  | • [System Test](https://system-test.onvue.com/system_test?customer=pearson_vue) <br> • [System Test](https://vueop.startpractice.com/) |  | ✅ |
-| ExamSoft: Examplify |  |  | [⬇ Download ⬇](https://releases.examsoft.com/Examplify/Examplify_LATEST_win.exe) | ✅ |
-| Examity | ✅ | [System Test](https://on.v5.examity.com/systemcheck) | • [⬇ Firefox ⬇](https://addons.mozilla.org/en-US/firefox/addon/examity/) <br> • [⬇ Chrome ⬇](https://chromewebstore.google.com/detail/geapelpefnpekodnnlkcaadniodlgebj) | ✅ |
-| Safe Exam Browser |  | [System Test](https://demo.safeexambrowser.org/exams/) | [⬇ Download ⬇](https://github.com/SafeExamBrowser/seb-win-refactoring/releases) | ✅ |
-| ETS Online Test (CLEP) |  |  | [⬇ Download ⬇](https://www.ets.org/browserinstall) | ✅ |
-| Bluebook |  |  | [⬇ Download ⬇](https://bluebook.app.collegeboard.org/) | ✅ |
-| Inspera Exam Portal |  | [Demo Exam Instructions](https://www.ltu.se/en/student-web/your-studies/examination/digital-exam-inspera/instructions-for-pc-and-mac-when-downloading-the-inspera-exam-portal) | [⬇ Download ⬇](https://ltu.inspera.com/get-iep) | ✅ |
-| Kryterion |  | [System Test](https://www.kryterion.com/systemcheck/) | [⬇ Download ⬇](https://media.webassessor.com/respondus/windows/labedition/Respondus_LockDown_Browser_Lab_OEM.msi) | ✅ |
-
-## Anti-Cheats
-
-- [areweanticheatyet](https://areweanticheatyet.com/)
-
-| 🎮 Game | 🛡️ Engine | ✅ Bypassed |
-|:------:|:--------:|:--------:|
-| Fortnite | Easy Anti-Cheat (EAC) | ✅ |
-| Call of Duty (Warzone / MW Series) | RICOCHET | ✅ |
-| Roblox | Hyperion | ✅ |
-| Valorant / League of Legends | Vanguard | ✅ ([Hyper-V](https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/overview) + [HVCI](https://learn.microsoft.com/en-us/windows/security/hardware-security/enable-virtualization-based-protection-of-code-integrity)) |
-| PUBG: Battlegrounds | Gepard Shield | ✅ |
-| Genshin Impact | Mhyprot | ❔ (HoYoKProtect.sys) <br> 🪟 [BSOD: ATTEMPTED_WRITE_TO_READONLY_MEMORY](https://github.com/Scrut1ny/Hypervisor-Phantom/issues/34) |
-| Battlefield™ 2042 | EA anticheat (EAAC) | ✅ |
-| Marvel Rivals | NACE (Netease Anticheat Expert) | ✅ |
-| Various Desktop Games | Easy Anti-Cheat (EAC) | ✅ |
-| Various Desktop Games | nProtect GameGuard (NP) | ✅ |
-| Various Desktop Games | BattlEye (BE) | ✅ Add `    <feature policy="disable" name="aes"/>` to XML |
-| Various Mobile Games | Anti-Cheat Expert (ACE) | ✅ |
-
-</details>
-
-
-
-
 
 <details>
 <summary>Virtual Audio & Video (AV)</summary>
@@ -161,56 +99,6 @@ amdgpu.sg_display=0
 
 ## Audio
 - [VB-AUDIO](https://vb-audio.com/Cable/index.htm)
-
-</details>
-
-
-
-
-
-
-
-
-
-<details>
-<summary>Hypervisor + VPN</summary>
-
-- ***IMPORTANT***: Ensure not to add a custom DNS configuration to the guest system on the hypervisor if your host system's VPN uses custom DNS block lists. Doing so may result in your guest hypervisor system losing its internet connection!
-
-## Mullvad VPN + QEMU
-- For the VPN connection to get properly natted/bridged you must enable the setting `Local network sharing` option!
-    - How to: `⚙️` > `VPN settings` > `Local network sharing` ✅
-
-</details>
-
-
-
-
-
-
-
-<details>
-<summary>Recommended Tools</summary>
-
-- OCR Powered Screen-Capture Tools
-    - Linux:
-        - [NormCap](https://github.com/dynobo/normcap)
-    - Windows:
-        - [ShareX](https://github.com/ShareX/ShareX)
-- RAT (Remote Access/Administration Trojan)
-    - [Quasar](https://github.com/quasar/Quasar)
-        - [Resource Hacker](https://www.angusj.com/resourcehacker/)
-- Monitor EDID Modifiers
-  - EEPROM EDID (Hardware)
-    - [Monitor Tests](https://www.monitortests.com/)
-      - [EDID/DisplayID Writer](https://www.monitortests.com/forum/Thread-EDID-DisplayID-Writer)
-  - Windows INF override registry EDID (Software)
-    - [Monitor Tests](https://www.monitortests.com/)
-      - [Custom Resolution Utility (CRU)](https://www.monitortests.com/forum/Thread-Custom-Resolution-Utility-CRU)
-    - [Monitor Asset Manager](https://www.entechtaiwan.com/util/moninfo.shtm)
-- UEFI/BIOS Editors
-    - [Phoenix BIOS Editor](https://theretroweb.com/drivers/208)
-    - [UEFITool](https://github.com/LongSoft/UEFITool)
 
 </details>
 
@@ -292,45 +180,6 @@ amdgpu.sg_display=0
 
 
 <details>
-<summary>Elgato Capture Cards</summary>
-
-- Some of Elgato's capture cards, leveraging UVC (USB Video Class) technology, operate seamlessly without requiring additional drivers. As UVC devices, they adhere to a standard protocol for transmitting video and audio data over USB connections. This plug-and-play functionality ensures compatibility with various operating systems, enabling effortless setup and use for capturing high-quality video content.
-
-## UVC Elgato Capture Cards
-
-- [Article](https://help.elgato.com/hc/en-us/articles/360027961152-Elgato-Gaming-Hardware-Drivers)
-
-| Device                      | Driver Status                     |
-|-----------------------------|-----------------------------------|
-| Elgato Cam Link             | No driver since it's a UVC device |
-| Elgato Cam Link 4K          | No driver since it's a UVC device |
-| Elgato Game Capture HD60 S+ | No driver since it's a UVC device |
-| Elgato Game Capture HD60 X  | No driver since it's a UVC device |
-| Game Capture 4K X           | No driver since it's a UVC device |
-| Game Capture Neo            | No driver since it's a UVC device |
-
-## Linux - OBS Black Screen Issue Solution
-
-##### Step 1:
-Download and Install the latest `4K CAPTURE UTILITY` software from [Elgato downloads page](https://www.elgato.com/us/en/s/downloads) on a `WINDOWS OS`.
-
-#### Step 2:
-Open `Elgato 4K Capture Utility` and let the software initialize the UVC capture card.
-
-#### Step 3:
-Select the settings icon on the top right corner of the software utility, and select `Check for Updates...`. (It should update automatically already, but just make sure the firmware is on the latest version available.)
-
-#### Step 4:
-Now, connect the capture card device back to your Linux host system now and open OBS, you should now see an output from your GPU instead of a black screen.
-
-</details>
-
-
-
-
-
-
-<details>
 <summary>I²C EEPROM</summary>
 
 - EEPROM (**E**lectrically **E**rasable **P**rogrammable **R**ead-**O**nly **M**emory)
@@ -340,5 +189,14 @@ Now, connect the capture card device back to your Linux host system now and open
   - Bytes 12–15: Serial number. 32 bits, little-endian.
 
 - [EDID Analysis & Generation Tool](https://edidcraft.com/)
+
+- Monitor EDID Modifiers
+  - EEPROM EDID (Hardware)
+    - [Monitor Tests](https://www.monitortests.com/)
+      - [EDID/DisplayID Writer](https://www.monitortests.com/forum/Thread-EDID-DisplayID-Writer)
+  - Windows INF override registry EDID (Software)
+    - [Monitor Tests](https://www.monitortests.com/)
+      - [Custom Resolution Utility (CRU)](https://www.monitortests.com/forum/Thread-Custom-Resolution-Utility-CRU)
+    - [Monitor Asset Manager](https://www.entechtaiwan.com/util/moninfo.shtm)
 
 </details>

@@ -9,19 +9,49 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
-readonly EDK2_TAG="edk2-stable202602"
-readonly EDK2_URL="https://github.com/tianocore/edk2.git"
+readonly EDK2_URI="https://github.com/tianocore/edk2.git"
+readonly EDK2_TAG="${CPU_MANUFACTURER}-edk2-stable202602"
 
-readonly OVMF_PATCH="$(pwd)/patches/EDK2/${CPU_MANUFACTURER}-${EDK2_TAG}.patch"
-
-
+readonly OVMF_PATCH="$(pwd)/patches/EDK2/${EDK2_TAG}.patch"
 
 
 
-REQUIRED_PKGS_Arch=(base-devel acpica git nasm python patch virt-firmware)
-REQUIRED_PKGS_Debian=(build-essential uuid-dev acpica-tools git nasm python-is-python3 patch python3-virt-firmware)
-REQUIRED_PKGS_openSUSE=(gcc gcc-c++ make acpica git nasm python3 libuuid-devel patch virt-firmware)
-REQUIRED_PKGS_Fedora=(gcc gcc-c++ make acpica-tools git nasm python3 libuuid-devel patch python3-virt-firmware)
+
+
+REQUIRED_PKGS_Arch=(
+  # build dependencies
+  base-devel nasm acpica
+
+  # script dependencies
+  git virt-firmware
+)
+
+# EXPERIMENTAL
+REQUIRED_PKGS_Debian=(
+  # build dependencies
+  build-essential nasm acpica-tools uuid-dev
+
+  # script dependencies
+  git python-is-python3 python3-virt-firmware
+)
+
+# EXPERIMENTAL
+REQUIRED_PKGS_openSUSE=(
+  # build dependencies
+  gcc gcc-c++ make nasm acpica libuuid-devel
+
+  # script dependencies
+  git python3 virt-firmware
+)
+
+# EXPERIMENTAL
+REQUIRED_PKGS_Fedora=(
+  # build dependencies
+  gcc gcc-c++ make nasm acpica-tools libuuid-devel
+
+  # script dependencies
+  git python3 python3-virt-firmware
+)
 
 
 
@@ -35,8 +65,8 @@ acquire_edk2_source() {
   mkdir -p "$SRC_DIR" && cd "$SRC_DIR" || { fmtr::fatal "Failed to enter source dir: $SRC_DIR"; exit 1; }
 
   clone_repo() {
-    fmtr::info "Cloning '$EDK2_TAG' from '$EDK2_URL'..."
-    git clone --depth=1 --branch="$EDK2_TAG" "$EDK2_URL" "$EDK2_TAG" &>>"$LOG_FILE" \
+    fmtr::info "Cloning '$EDK2_TAG' from '$EDK2_URI'..."
+    git clone --depth=1 --branch="$EDK2_TAG" "$EDK2_URI" "$EDK2_TAG" &>>"$LOG_FILE" \
     || { fmtr::fatal "Clone failed!"; exit 1; }
 
     cd "$EDK2_TAG" || { fmtr::fatal "Missing '$EDK2_TAG' directory!"; exit 1; }
@@ -53,7 +83,7 @@ acquire_edk2_source() {
     if prmt::yes_or_no "$(fmtr::ask "Purge '$EDK2_TAG' directory?")"; then
       rm -rf "$EDK2_TAG" || { fmtr::fatal "Failed to purge '$EDK2_TAG' directory!"; exit 1; }
       fmtr::info "Directory purged successfully."
-      if prmt::yes_or_no "$(fmtr::ask "Clone '$EDK2_URL' repository again?")"; then
+      if prmt::yes_or_no "$(fmtr::ask "Clone '$EDK2_URI' repository again?")"; then
         clone_repo
       else
         fmtr::info "Skipping..."
@@ -220,59 +250,64 @@ build_ovmf() {
   export EDK_TOOLS_PATH="$WORKSPACE/BaseTools"
   export CONF_PATH="$WORKSPACE/Conf"
 
-  if [ ! -d "BaseTools/Build" ]; then
-    { make -C BaseTools -j"$(nproc)" && source edksetup.sh; } &>>"$LOG_FILE" || {
+  if [[ ! -d BaseTools/Build ]]; then
+    make -C BaseTools -j"$(nproc)" &>>"$LOG_FILE" || {
       fmtr::fatal "BaseTools build failed"; return 1;
     }
   fi
 
+  source edksetup.sh &>>"$LOG_FILE" || {
+    fmtr::fatal "edksetup.sh failed"; return 1;
+  }
+
   build -p OvmfPkg/OvmfPkgX64.dsc -a X64 -t GCC5 -b RELEASE -n 0 -s \
     -D SECURE_BOOT_ENABLE=TRUE -D SMM_REQUIRE=TRUE \
-    -D TPM1_ENABLE=TRUE        -D TPM2_ENABLE=TRUE &>>"$LOG_FILE" || {
+    -D TPM1_ENABLE=TRUE -D TPM2_ENABLE=TRUE &>>"$LOG_FILE" || {
       fmtr::fatal "OVMF build failed"; return 1;
     }
 
   # --- Phase 2: Variable Extraction & NVRAM Injection ---
-  local efivars_json
+  local efivars_json name guid path full_hex attr sep=""
+  local -r build_fv="Build/OvmfX64/RELEASE_GCC5/FV"
   local -r EFI_GLOBAL_VARIABLE=8be4df61-93ca-11d2-aa0d-00e098032b8c
   local -r EFI_IMAGE_SECURITY_DATABASE_GUID=d719b2cb-3d3a-4596-a3bc-dad00e67656f
+  local -a keys=(
+    "PK:$EFI_GLOBAL_VARIABLE"               "KEK:$EFI_GLOBAL_VARIABLE"
+    "db:$EFI_IMAGE_SECURITY_DATABASE_GUID"  "dbx:$EFI_IMAGE_SECURITY_DATABASE_GUID"
+    "PKDefault:$EFI_GLOBAL_VARIABLE"        "KEKDefault:$EFI_GLOBAL_VARIABLE"
+    "dbDefault:$EFI_GLOBAL_VARIABLE"        "dbxDefault:$EFI_GLOBAL_VARIABLE"
+  )
 
   efivars_json="$(mktemp)" || return 1
   trap 'rm -f "$efivars_json"' RETURN
 
   fmtr::info "Extracting host EFI keys..."
 
-  local -a keys=(
-    "PK:${EFI_GLOBAL_VARIABLE}"               "KEK:${EFI_GLOBAL_VARIABLE}"
-    "db:${EFI_IMAGE_SECURITY_DATABASE_GUID}"  "dbx:${EFI_IMAGE_SECURITY_DATABASE_GUID}"
-    "PKDefault:${EFI_GLOBAL_VARIABLE}"        "KEKDefault:${EFI_GLOBAL_VARIABLE}"
-    "dbDefault:${EFI_GLOBAL_VARIABLE}"        "dbxDefault:${EFI_GLOBAL_VARIABLE}"
-  )
-
   {
     printf '{\n    "version": 2,\n    "variables": [\n'
-    local first=true name guid path full_hex attr
+
     for entry in "${keys[@]}"; do
       IFS=: read -r name guid <<< "$entry"
       path="/sys/firmware/efi/efivars/${name}-${guid}"
-      [ -f "$path" ] || continue
+      [[ -f "$path" ]] || continue
 
       full_hex=$(hexdump -ve '1/1 "%.2x"' "$path" 2>/dev/null) || continue
       attr=$(printf '%d' "0x${full_hex:6:2}${full_hex:4:2}${full_hex:2:2}${full_hex:0:2}")
 
-      "$first" && first=false || printf ',\n'
-      printf '        { "name": "%s", "guid": "%s", "attr": %d, "data": "%s" }' \
-        "$name" "$guid" "$attr" "${full_hex:8}"
+      printf '%s        { "name": "%s", "guid": "%s", "attr": %d, "data": "%s" }' \
+          "$sep" "$name" "$guid" "$attr" "${full_hex:8}"
+      sep=$',\n'
     done
+
     printf '\n    ]\n}\n'
   } > "$efivars_json"
 
   fmtr::info "Populating OVMF NVRAM..."
 
-  $ROOT_ESC cp "Build/OvmfX64/RELEASE_GCC5/FV/OVMF_CODE.fd" "$OUT_DIR/firmware/OVMF_CODE.fd" || return 1
+  $ROOT_ESC cp "$build_fv/OVMF_CODE.fd" "$OUT_DIR/firmware/OVMF_CODE.fd" || return 1
 
   $ROOT_ESC virt-fw-vars \
-    --input "Build/OvmfX64/RELEASE_GCC5/FV/OVMF_VARS.fd" \
+    --input "$build_fv/OVMF_VARS.fd" \
     --output "$OUT_DIR/firmware/OVMF_VARS.fd" \
     --secure-boot \
     --set-json "$efivars_json" &>>"$LOG_FILE" || {
@@ -292,7 +327,7 @@ build_ovmf() {
 cleanup() {
   fmtr::info "Cleaning up..."
   rm -rf "$SRC_DIR/$EDK2_TAG"
-  rmdir --ignore-fail-on-non-empty "$SRC_DIR" 2>/dev/null || true
+  rmdir "$SRC_DIR" 2>/dev/null
 }
 
 

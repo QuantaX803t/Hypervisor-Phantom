@@ -2,6 +2,10 @@
 
 source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
+
+
+
+
 readonly VFIO_CONF_PATH="/etc/modprobe.d/vfio.conf"
 readonly VFIO_KERNEL_OPTS_REGEX='(intel_iommu=[^ ]*|iommu=[^ ]*|vfio-pci\.ids=[^ ]*)'
 readonly LIMINE_ENTRY_REGEX='^KERNEL_CMDLINE\[.*\]\+?='
@@ -20,6 +24,10 @@ declare -A GPU_DRIVERS=(
 
 VFIO_PCI_IDS=""
 BOOTLOADER_CHANGED=0
+
+
+
+
 
 ################################################################################
 # Bootloader Detection
@@ -55,6 +63,10 @@ detect_bootloader() {
     fmtr::error "No supported bootloader detected (Limine, GRUB, or systemd-boot). Exiting."
     return 1
 }
+
+
+
+
 
 ################################################################################
 # Revert VFIO Configurations
@@ -93,6 +105,10 @@ revert_vfio() {
     esac
     fmtr::log "Removed VFIO kernel opts from: $BOOTLOADER_CONFIG"
 }
+
+
+
+
 
 ################################################################################
 # Configure VFIO
@@ -168,6 +184,10 @@ configure_vfio() {
     # sudo mkinitcpio -P
 }
 
+
+
+
+
 ################################################################################
 # Bootloader Configuration
 ################################################################################
@@ -233,6 +253,10 @@ configure_bootloader() {
     esac
 }
 
+
+
+
+
 ################################################################################
 # Rebuild Bootloader Configuration
 ################################################################################
@@ -269,6 +293,10 @@ rebuild_bootloader() {
             ;;
     esac
 }
+
+
+
+
 
 ################################################################################
 # Main Script

@@ -2,63 +2,88 @@
 
 source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
+
+
+
+
 REQUIRED_PKGS_Arch=(
-  qemu-base edk2-ovmf libvirt dnsmasq virt-manager swtpm
+  dnsmasq libvirt virt-manager swtpm
+  # qemu-base edk2-ovmf
 )
 
+# EXPERIMENTAL
 REQUIRED_PKGS_Debian=(
   qemu-system-x86 ovmf virt-manager libvirt-clients swtpm
   libvirt-daemon-system libvirt-daemon-config-network
 )
 
+# EXPERIMENTAL
 REQUIRED_PKGS_openSUSE=(
   libvirt libvirt-client libvirt-daemon virt-manager
   qemu qemu-kvm ovmf qemu-tools swtpm
 )
 
+# EXPERIMENTAL
 REQUIRED_PKGS_Fedora=(
   @virtualization swtpm
 )
+
+
+
+
 
 configure_system_installation() {
   local target_user="${SUDO_USER:-$USER}"
   local user_groups=" $(id -nG "$target_user") "
 
-  # Groups: input, kvm, and libvirt
+  # $USER Groups: input, kvm, and libvirt
   for grp in input kvm libvirt; do
-    if [[ "$user_groups" == *" $grp "* ]]; then
-      fmtr::info "User $target_user already in $grp group"
-    else
-      $ROOT_ESC usermod -aG "$grp" "$target_user"
-      fmtr::info "Added $target_user to $grp group"
-    fi
+      if [[ "$user_groups" == *" $grp "* ]]; then
+          fmtr::info "User '$target_user' already has group '$grp' *skipping*"
+      else
+          $ROOT_ESC usermod -aG "$grp" "$target_user"
+          fmtr::info "User '$target_user' now has group '$grp'"
+      fi
   done
-  
-  # Modify defaults for default (virbr0) libvirt network
-  # *IMPORTANT* Patches 52:54:00:XX:XX:XX and DHCP range 192.168.122.2-254
-  # This appears in ARP cache and needs to be modified.
-  OUI="b0:4e:26"
-  RANDOM_MAC="$OUI:$(printf '%02x:%02x:%02x' $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)))"
-  XML_PATH="/etc/libvirt/qemu/networks/default.xml"
 
-  $ROOT_ESC sed -i \
-    -e "s|<mac address='[0-9A-Fa-f:]\{17\}'|<mac address='$RANDOM_MAC'|g" \
-    -e "s|address='[0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}'|address='10.0.0.1'|g" \
-    -e "s|start='[0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}'|start='10.0.0.2'|g" \
-    -e "s|end='[0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}'|end='10.0.0.254'|g" \
-    "$XML_PATH"
+  # Enable (autostart) & start libvirt service
+  if ! systemctl is-active --quiet libvirtd; then
+      $ROOT_ESC systemctl enable --now libvirtd
+  fi
 
-  # Enable (autostart) & start libvirtd.socket
-  $ROOT_ESC systemctl enable --now libvirtd.socket &>> "$LOG_FILE" \
-    && fmtr::info "Ensured libvirtd.socket is enabled and started" \
-    || fmtr::warn "Failed to enable/start libvirtd.socket (see $LOG_FILE)"
+  # Generate hybrid MAC address
+  GATEWAY=$(ip route show default | awk '/default/ {print $3}') || { fmtr::error "No gateway detected"; return; }
+  ping -c 1 -W 1 "$GATEWAY" &>/dev/null
+  ROUTER_MAC=$(awk -v gw="$GATEWAY" '$1==gw{print $4}' /proc/net/arp) || { fmtr::error "No router MAC found"; return; }
+  OUI="${ROUTER_MAC%:*:*:*}"
+  TAIL=$(printf '%02x:%02x:%02x' $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)))
+  HYBRID_MAC="$OUI:$TAIL"
 
-  # Autostart & start default (virbr0) libvirt network
-  $ROOT_ESC virsh net-autostart default &>>"$LOG_FILE" || true
-  $ROOT_ESC virsh net-start default &>>"$LOG_FILE" \
-    && fmtr::info "Started and enabled default libvirt network" \
-    || fmtr::warn "Failed to start default libvirt network (see $LOG_FILE)"
+  # Define libvirt network if missing
+  if ! $ROOT_ESC virsh net-info AutoVirt-Router &>> "$LOG_FILE"; then
+      $ROOT_ESC virsh net-define /dev/stdin &>> "$LOG_FILE" <<EOF
+  <network>
+    <name>AutoVirt-Router</name>
+    <forward mode="nat"/>
+    <mac address="$HYBRID_MAC"/>
+    <ip address="10.0.0.1" netmask="255.255.255.0">
+      <dhcp>
+        <range start="10.0.0.2" end="10.0.0.254"/>
+      </dhcp>
+    </ip>
+  </network>
+EOF
+      $ROOT_ESC virsh net-autostart AutoVirt-Router &>> "$LOG_FILE"
+      $ROOT_ESC virsh net-start AutoVirt-Router &>> "$LOG_FILE"
+      fmtr::info "AutoVirt-Router network created and started."
+  else
+      fmtr::info "'AutoVirt-Router' network already exists. *skipping*"
+  fi
 }
+
+
+
+
 
 main() {
   install_req_pkgs "virt"
