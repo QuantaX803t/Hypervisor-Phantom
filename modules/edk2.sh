@@ -10,7 +10,7 @@ readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
 readonly EDK2_URI="https://github.com/tianocore/edk2.git"
-readonly EDK2_TAG="edk2-stable202602"
+readonly EDK2_TAG="${CPU_MANUFACTURER}-edk2-stable202602"
 
 readonly OVMF_PATCH="$(pwd)/patches/EDK2/${EDK2_TAG}.patch"
 
