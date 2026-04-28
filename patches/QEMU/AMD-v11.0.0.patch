@@ -475,7 +475,7 @@ index b00987f..438ec55 100644
      k->class_id = PCI_CLASS_STORAGE_SATA;
      dc->vmsd = &vmstate_ich9_ahci;
 diff --git a/hw/isa/lpc_ich9.c b/hw/isa/lpc_ich9.c
-index 51dc680..438625d 100644
+index 51dc680..471b3af 100644
 --- a/hw/isa/lpc_ich9.c
 +++ b/hw/isa/lpc_ich9.c
 @@ -863,7 +863,7 @@ static void build_ich9_isa_aml(AcpiDevAmlIf *adev, Aml *scope)
@@ -487,13 +487,11 @@ index 51dc680..438625d 100644
      aml_append(field, aml_named_field("PRQA", 8));
      aml_append(field, aml_named_field("PRQB", 8));
      aml_append(field, aml_named_field("PRQC", 8));
-@@ -893,8 +893,8 @@ static void ich9_lpc_class_init(ObjectClass *klass, const void *data)
-     dc->vmsd = &vmstate_ich9_lpc;
+@@ -894,7 +894,7 @@ static void ich9_lpc_class_init(ObjectClass *klass, const void *data)
      device_class_set_props(dc, ich9_lpc_properties);
      k->config_write = ich9_lpc_config_write;
--    dc->desc = "ICH9 LPC bridge";
+     dc->desc = "ICH9 LPC bridge";
 -    k->vendor_id = PCI_VENDOR_ID_INTEL;
-+    dc->desc = "FCH LPC Bridge";
 +    k->vendor_id = PCI_VENDOR_ID_AMD;
      k->device_id = PCI_DEVICE_ID_INTEL_ICH9_8;
      k->revision = ICH9_A2_LPC_REVISION;
@@ -691,10 +689,10 @@ index f38e129..e346f2d 100644
  #define ACPI_BUILD_TABLE_FILE "etc/acpi/tables"
  #define ACPI_BUILD_RSDP_FILE "etc/acpi/rsdp"
 diff --git a/include/hw/pci/pci.h b/include/hw/pci/pci.h
-index 5b17909..398a719 100644
+index 5b17909..a48cd82 100644
 --- a/include/hw/pci/pci.h
 +++ b/include/hw/pci/pci.h
-@@ -57,12 +57,12 @@ extern bool pci_available;
+@@ -57,8 +57,8 @@ extern bool pci_available;
  #define PCI_DEVICE_ID_MARVELL_GT6412X    0x4620
  
  /* QEMU/Bochs VGA (0x1234) */
@@ -705,11 +703,6 @@ index 5b17909..398a719 100644
  #define PCI_DEVICE_ID_QEMU_IPMI          0x1112
  
  /* VMWare (0x15ad) */
--#define PCI_VENDOR_ID_VMWARE             0x15ad
-+#define PCI_VENDOR_ID_VMWARE             0x1022 // AMD Vendor ID Replacement from 0x15ad
- #define PCI_DEVICE_ID_VMWARE_SVGA2       0x0405
- #define PCI_DEVICE_ID_VMWARE_SVGA        0x0710
- #define PCI_DEVICE_ID_VMWARE_NET         0x0720
 @@ -74,12 +74,12 @@ extern bool pci_available;
  /* Intel (0x8086) */
  #define PCI_DEVICE_ID_INTEL_82551IT      0x1209
@@ -799,7 +792,7 @@ index 16034aa..2bae16e 100644
  #define PCI_VENDOR_ID_XEN                0x5853
  #define PCI_DEVICE_ID_XEN_PLATFORM       0x0001
 diff --git a/include/hw/southbridge/ich9.h b/include/hw/southbridge/ich9.h
-index 2c35dd0..87d0cfb 100644
+index 2c35dd0..086e30c 100644
 --- a/include/hw/southbridge/ich9.h
 +++ b/include/hw/southbridge/ich9.h
 @@ -128,7 +128,7 @@ struct ICH9LPCState {
@@ -807,7 +800,7 @@ index 2c35dd0..87d0cfb 100644
  #define ICH9_LPC_FUNC                           0
  
 -#define ICH9_A2_LPC_REVISION                    0x2
-+#define ICH9_A2_LPC_REVISION                    0x51    //AMD replacement from 0x2
++#define ICH9_A2_LPC_REVISION                    0x51 // AMD replacement from 0x2
  #define ICH9_LPC_NB_PIRQS                       8       /* PCI A-H */
  
  #define ICH9_LPC_PMBASE                         0x40
@@ -816,7 +809,7 @@ index 2c35dd0..87d0cfb 100644
  #define TYPE_ICH9_SMB_DEVICE "ICH9-SMB"
  
 -#define ICH9_A2_SMB_REVISION                    0x02
-+#define ICH9_A2_SMB_REVISION                    0x71  //AMD replacement from 0x02
++#define ICH9_A2_SMB_REVISION                    0x71 // AMD replacement from 0x02
  #define ICH9_SMB_PI                             0x00
  
  #define ICH9_SMB_SMBMBAR0                       0x10
