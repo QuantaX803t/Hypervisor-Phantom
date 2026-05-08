@@ -197,7 +197,7 @@ index 87162ff..f6fe4ea 100644
  
          call_dev_aml_func(DEVICE(bus->devices[devfn]), dev);
 diff --git a/hw/audio/hda-codec.c b/hw/audio/hda-codec.c
-index 173fe56..823b2e5 100644
+index 173fe56..4d8a73b 100644
 --- a/hw/audio/hda-codec.c
 +++ b/hw/audio/hda-codec.c
 @@ -118,7 +118,7 @@ static void hda_codec_parse_fmt(uint32_t format, struct audsettings *as)
@@ -205,12 +205,12 @@ index 173fe56..823b2e5 100644
  /* some defines */
  
 -#define QEMU_HDA_ID_VENDOR  0x1af4
-+#define QEMU_HDA_ID_VENDOR  0x10EC /* Realtek HDA Codec Vendor ID */
++#define QEMU_HDA_ID_VENDOR  0x10ec /* Realtek HDA Codec Vendor ID */
  #define QEMU_HDA_PCM_FORMATS (AC_SUPPCM_BITS_16 |       \
                                0x1fc /* 16 -> 96 kHz */)
  #define QEMU_HDA_AMP_NONE    (0)
 diff --git a/hw/audio/intel-hda.c b/hw/audio/intel-hda.c
-index d7c2c3c..f4dfb91 100644
+index d7c2c3c..c5cf7fb 100644
 --- a/hw/audio/intel-hda.c
 +++ b/hw/audio/intel-hda.c
 @@ -1227,7 +1227,7 @@ static void intel_hda_class_init(ObjectClass *klass, const void *data)
@@ -228,7 +228,7 @@ index d7c2c3c..f4dfb91 100644
  
 -    k->device_id = 0x2668;
 -    k->revision = 1;
-+    k->device_id = 0x15e3; // "Intel 82801IB ICH6 - High Definition Audio [A3]" | AMD Device ID Replacement from 0x2668 | hw/audio/intel-hda.c
++    k->device_id = 0x15e3; // AMD - Ryzen HD Audio Controller
 +    k->revision = 0;
      set_bit(DEVICE_CATEGORY_SOUND, dc->categories);
      dc->desc = "Intel HD Audio Controller (ich6)";
@@ -239,7 +239,7 @@ index d7c2c3c..f4dfb91 100644
  
 -    k->device_id = 0x293e;
 -    k->revision = 3;
-+    k->device_id = 0x15e3; // "Intel 82801IB ICH9 - High Definition Audio [A3]" | AMD Device ID Replacement from 0x293e | hw/audio/intel-hda.c
++    k->device_id = 0x15e3; // AMD - Ryzen HD Audio Controller
 +    k->revision = 0;
      set_bit(DEVICE_CATEGORY_SOUND, dc->categories);
      dc->desc = "Intel HD Audio Controller (ich9)";
@@ -750,14 +750,14 @@ index 5b17909..a48cd82 100644
  #define PCI_DEVICE_ID_REDHAT_NVME        0x0010
  #define PCI_DEVICE_ID_REDHAT_PVPANIC     0x0011
 diff --git a/include/hw/pci/pci_ids.h b/include/hw/pci/pci_ids.h
-index 16034aa..2bae16e 100644
+index 16034aa..8c8eac6 100644
 --- a/include/hw/pci/pci_ids.h
 +++ b/include/hw/pci/pci_ids.h
 @@ -178,6 +178,7 @@
  #define PCI_VENDOR_ID_AMD                0x1022
  #define PCI_DEVICE_ID_AMD_LANCE          0x2000
  #define PCI_DEVICE_ID_AMD_SCSI           0x2020
-+#define PCI_DEVICE_ID_AMD_SATA           0x7900 // FCH SATA Controller [IDE mode] | hw/ide/ich.c
++#define PCI_DEVICE_ID_AMD_SATA           0x43f6 // SATA controller [0106] | hw/ide/ich.c
  
  #define PCI_VENDOR_ID_HP                 0x103c
  
@@ -766,7 +766,7 @@ index 16034aa..2bae16e 100644
  #define PCI_DEVICE_ID_INTEL_82441        0x1237
  #define PCI_DEVICE_ID_INTEL_82801AA_5    0x2415
 -#define PCI_DEVICE_ID_INTEL_82801BA_11   0x244e
-+#define PCI_DEVICE_ID_INTEL_82801BA_11   0x14db // Type: Bridge Device | Category: PCI-to-PCI Bridge | PCI Class: 0x0604 | hw/pci-bridge/i82801b11.c
++#define PCI_DEVICE_ID_INTEL_82801BA_11   0x14db // PCI bridge [0604] | hw/pci-bridge/i82801b11.c
  #define PCI_DEVICE_ID_INTEL_82801D       0x24CD
  #define PCI_DEVICE_ID_INTEL_ESB_9        0x25ab
  #define PCI_DEVICE_ID_INTEL_NVME         0x5845
@@ -775,10 +775,10 @@ index 16034aa..2bae16e 100644
  #define PCI_DEVICE_ID_INTEL_ICH9_4       0x2914
  #define PCI_DEVICE_ID_INTEL_ICH9_5       0x2919
 -#define PCI_DEVICE_ID_INTEL_ICH9_6       0x2930
-+#define PCI_DEVICE_ID_INTEL_ICH9_6       0x790b // Type: System Device | Category: SMBus Controller | PCI Class: 0x0c05 | hw/i2c/smbus_ich9.c
++#define PCI_DEVICE_ID_INTEL_ICH9_6       0x790b // SMBus [0c05] | hw/i2c/smbus_ich9.c
  #define PCI_DEVICE_ID_INTEL_ICH9_7       0x2916
 -#define PCI_DEVICE_ID_INTEL_ICH9_8       0x2918
-+#define PCI_DEVICE_ID_INTEL_ICH9_8       0x790e // Type: Bridge Device | Category: LPC Controller   | PCI Class: 0x0601 | hw/isa/lpc_ich9.c
++#define PCI_DEVICE_ID_INTEL_ICH9_8       0x790e // ISA bridge [0601] | hw/isa/lpc_ich9.c
  
  #define PCI_DEVICE_ID_INTEL_82801I_UHCI1 0x2934
  #define PCI_DEVICE_ID_INTEL_82801I_UHCI2 0x2935
@@ -787,12 +787,12 @@ index 16034aa..2bae16e 100644
  #define PCI_DEVICE_ID_INTEL_82599_SFP_VF 0x10ed
  
 -#define PCI_DEVICE_ID_INTEL_P35_MCH      0x29c0
-+#define PCI_DEVICE_ID_INTEL_P35_MCH      0x14d8 // Type: Bridge Device | Category: Host Bridge | PCI Class: 0x0600 | hw/pci-host/q35.c
++#define PCI_DEVICE_ID_INTEL_P35_MCH      0x14d8 // Host bridge [0600] | hw/pci-host/q35.c
  
  #define PCI_VENDOR_ID_XEN                0x5853
  #define PCI_DEVICE_ID_XEN_PLATFORM       0x0001
 diff --git a/include/hw/southbridge/ich9.h b/include/hw/southbridge/ich9.h
-index 2c35dd0..086e30c 100644
+index 2c35dd0..83536ba 100644
 --- a/include/hw/southbridge/ich9.h
 +++ b/include/hw/southbridge/ich9.h
 @@ -128,7 +128,7 @@ struct ICH9LPCState {
@@ -800,7 +800,7 @@ index 2c35dd0..086e30c 100644
  #define ICH9_LPC_FUNC                           0
  
 -#define ICH9_A2_LPC_REVISION                    0x2
-+#define ICH9_A2_LPC_REVISION                    0x51 // AMD replacement from 0x2
++#define ICH9_A2_LPC_REVISION                    0x51 // ISA bridge [0601] | hw/isa/lpc_ich9.c
  #define ICH9_LPC_NB_PIRQS                       8       /* PCI A-H */
  
  #define ICH9_LPC_PMBASE                         0x40
@@ -809,7 +809,7 @@ index 2c35dd0..086e30c 100644
  #define TYPE_ICH9_SMB_DEVICE "ICH9-SMB"
  
 -#define ICH9_A2_SMB_REVISION                    0x02
-+#define ICH9_A2_SMB_REVISION                    0x71 // AMD replacement from 0x02
++#define ICH9_A2_SMB_REVISION                    0x71 // SMBus [0c05] | hw/i2c/smbus_ich9.c
  #define ICH9_SMB_PI                             0x00
  
  #define ICH9_SMB_SMBMBAR0                       0x10
@@ -849,14 +849,14 @@ index 2e6e249..30fbaa1 100644
  #define BIOS_CFG_DMA_ADDR_HIGH  0x514
  #define BIOS_CFG_DMA_ADDR_LOW   0x518
 diff --git a/target/i386/cpu.c b/target/i386/cpu.c
-index c6fd1dc..6427b85 100644
+index c6fd1dc..1c97fcc 100644
 --- a/target/i386/cpu.c
 +++ b/target/i386/cpu.c
 @@ -1005,6 +1005,7 @@ void x86_cpu_vendor_words2str(char *dst, uint32_t vendor1,
  #define TCG_7_2_EDX_FEATURES 0
  #define TCG_APM_FEATURES 0
  #define TCG_6_EAX_FEATURES CPUID_6_EAX_ARAT
-+#define TCG_6_ECX_FEATURES CPUID_6_ECX_APERFMPERF
++#define TCG_6_ECX_FEATURES 0
  #define TCG_XSAVE_FEATURES (CPUID_XSAVE_XSAVEOPT | CPUID_XSAVE_XGETBV1)
            /* missing:
            CPUID_XSAVE_XSAVEC, CPUID_XSAVE_XSAVES */
@@ -899,36 +899,12 @@ index c6fd1dc..6427b85 100644
      x86_cpu_adjust_feat_level(cpu, FEAT_7_0_ECX);
      x86_cpu_adjust_feat_level(cpu, FEAT_7_1_EAX);
      x86_cpu_adjust_feat_level(cpu, FEAT_7_1_ECX);
-@@ -9713,6 +9730,23 @@ void x86_cpu_expand_features(X86CPU *cpu, Error **errp)
-         env->cpuid_xlevel2 = env->cpuid_min_xlevel2;
-     }
- 
-+    /*
-+     * When running with an accelerator that exposes the host CPUID
-+     * directly (passthrough), limit the standard CPUID leaf to 0x1E so
-+     * the guest sees the same ceiling as "-cpu host,level=30".
-+     * This fixes BSODs in Windows when running nested virtualization
-+     * on newer Intel CPUs (12th generation+).
-+     */
-+    if (accel_uses_host_cpuid() && IS_INTEL_CPU(env) &&
-+        (cpu->hyperv_features || cpu->hyperv_passthrough)) {
-+        if (env->cpuid_min_level > 0x1E) {
-+            env->cpuid_min_level = 0x1E;
-+        }
-+        if (env->cpuid_level > 0x1E) {
-+            env->cpuid_level = 0x1E;
-+        }
-+    }
-+
-     if (kvm_enabled() && !kvm_hyperv_expand_features(cpu, errp)) {
-         return;
-     }
-@@ -10647,7 +10681,7 @@ static const Property x86_cpu_properties[] = {
+@@ -10647,7 +10664,7 @@ static const Property x86_cpu_properties[] = {
      DEFINE_PROP_BOOL("lmce", X86CPU, enable_lmce, false),
      DEFINE_PROP_BOOL("l3-cache", X86CPU, enable_l3_cache, true),
      DEFINE_PROP_BOOL("kvm-pv-enforce-cpuid", X86CPU, kvm_pv_enforce_cpuid,
 -                     false),
-+                     true),
++                     true), // Forces #GP fault on unsupported RDMSR/WRMSR for KVM paravirtual MSRs (0x4b564d00–0x4b564d08)
      DEFINE_PROP_BOOL("vmware-cpuid-freq", X86CPU, vmware_cpuid_freq, true),
      DEFINE_PROP_BOOL("tcg-cpuid", X86CPU, expose_tcg, true),
      DEFINE_PROP_BOOL("x-migrate-smi-count", X86CPU, migrate_smi_count,
