@@ -630,7 +630,7 @@ index f38e129..b4055f5 100644
  #define ACPI_BUILD_TABLE_FILE "etc/acpi/tables"
  #define ACPI_BUILD_RSDP_FILE "etc/acpi/rsdp"
 diff --git a/include/hw/pci/pci.h b/include/hw/pci/pci.h
-index 5b17909..cdfad51 100644
+index 5b17909..d217e35 100644
 --- a/include/hw/pci/pci.h
 +++ b/include/hw/pci/pci.h
 @@ -57,7 +57,7 @@ extern bool pci_available;
@@ -653,9 +653,9 @@ index 5b17909..cdfad51 100644
 -#define PCI_VENDOR_ID_REDHAT_QUMRANET    0x1af4
 -#define PCI_SUBVENDOR_ID_REDHAT_QUMRANET 0x1af4
 -#define PCI_SUBDEVICE_ID_QEMU            0x1100
-+#define PCI_VENDOR_ID_REDHAT_QUMRANET    0x8086 // Intel Vendor ID Replacement from 0x1af4
-+#define PCI_SUBVENDOR_ID_REDHAT_QUMRANET 0x8086 // Intel Subvendor ID Replacement from 0x1af4
-+#define PCI_SUBDEVICE_ID_QEMU            0x8086 // Intel Subdevice ID Replacement from 0x1100
++#define PCI_VENDOR_ID_REDHAT_QUMRANET    0x1af4 // VirtIO devices | IVSHMEM Driver | Looking Glass
++#define PCI_SUBVENDOR_ID_REDHAT_QUMRANET 0x1af4 // VirtIO devices | IVSHMEM Driver | Looking Glass
++#define PCI_SUBDEVICE_ID_QEMU            0x1100 // VirtIO devices | IVSHMEM Driver | Looking Glass
  
  /* legacy virtio-pci devices */
  #define PCI_DEVICE_ID_VIRTIO_NET         0x1000
@@ -689,18 +689,27 @@ index 5b17909..cdfad51 100644
  #define PCI_DEVICE_ID_REDHAT_NVME        0x0010
  #define PCI_DEVICE_ID_REDHAT_PVPANIC     0x0011
 diff --git a/include/hw/pci/pci_ids.h b/include/hw/pci/pci_ids.h
-index 16034aa..4879b29 100644
+index 16034aa..4622b45 100644
 --- a/include/hw/pci/pci_ids.h
 +++ b/include/hw/pci/pci_ids.h
+@@ -241,7 +241,7 @@
+ #define PCI_DEVICE_ID_INTEL_82378        0x0484
+ #define PCI_DEVICE_ID_INTEL_82441        0x1237
+ #define PCI_DEVICE_ID_INTEL_82801AA_5    0x2415
+-#define PCI_DEVICE_ID_INTEL_82801BA_11   0x244e
++#define PCI_DEVICE_ID_INTEL_82801BA_11   0x244e // PCI bridge [0604] | hw/pci-bridge/i82801b11.c
+ #define PCI_DEVICE_ID_INTEL_82801D       0x24CD
+ #define PCI_DEVICE_ID_INTEL_ESB_9        0x25ab
+ #define PCI_DEVICE_ID_INTEL_NVME         0x5845
 @@ -259,9 +259,9 @@
  #define PCI_DEVICE_ID_INTEL_ICH9_3       0x2913
  #define PCI_DEVICE_ID_INTEL_ICH9_4       0x2914
  #define PCI_DEVICE_ID_INTEL_ICH9_5       0x2919
 -#define PCI_DEVICE_ID_INTEL_ICH9_6       0x2930
-+#define PCI_DEVICE_ID_INTEL_ICH9_6       0x51a3 // Type: System Device | Category: SMBus Controller | PCI Class: 0x0c05 | hw/i2c/smbus_ich9.c
++#define PCI_DEVICE_ID_INTEL_ICH9_6       0x51a3 // SMBus [0c05] | hw/i2c/smbus_ich9.c
  #define PCI_DEVICE_ID_INTEL_ICH9_7       0x2916
 -#define PCI_DEVICE_ID_INTEL_ICH9_8       0x2918
-+#define PCI_DEVICE_ID_INTEL_ICH9_8       0x5182 // Type: Bridge Device | Category: LPC Controller   | PCI Class: 0x0601 | hw/isa/lpc_ich9.c
++#define PCI_DEVICE_ID_INTEL_ICH9_8       0x5182 // ISA bridge [0601] | hw/isa/lpc_ich9.c
  
  #define PCI_DEVICE_ID_INTEL_82801I_UHCI1 0x2934
  #define PCI_DEVICE_ID_INTEL_82801I_UHCI2 0x2935
@@ -709,23 +718,36 @@ index 16034aa..4879b29 100644
  #define PCI_DEVICE_ID_INTEL_82599_SFP_VF 0x10ed
  
 -#define PCI_DEVICE_ID_INTEL_P35_MCH      0x29c0
-+#define PCI_DEVICE_ID_INTEL_P35_MCH      0x4641 // Type: Bridge Device | Category: Host Bridge | PCI Class: 0x0600 | hw/pci-host/q35.c
++#define PCI_DEVICE_ID_INTEL_P35_MCH      0x4641 // Host bridge [0600] | hw/pci-host/q35.c
  
  #define PCI_VENDOR_ID_XEN                0x5853
  #define PCI_DEVICE_ID_XEN_PLATFORM       0x0001
+diff --git a/include/hw/southbridge/ich9.h b/include/hw/southbridge/ich9.h
+index 2c35dd0..83536ba 100644
+--- a/include/hw/southbridge/ich9.h
++++ b/include/hw/southbridge/ich9.h
+@@ -128,7 +128,7 @@ struct ICH9LPCState {
+ #define ICH9_LPC_DEV                            31
+ #define ICH9_LPC_FUNC                           0
+ 
+-#define ICH9_A2_LPC_REVISION                    0x2
++#define ICH9_A2_LPC_REVISION                    0x51 // ISA bridge [0601] | hw/isa/lpc_ich9.c
+ #define ICH9_LPC_NB_PIRQS                       8       /* PCI A-H */
+ 
+ #define ICH9_LPC_PMBASE                         0x40
+@@ -213,7 +213,7 @@ struct ICH9LPCState {
+ /* D31:F3 SMBus controller */
+ #define TYPE_ICH9_SMB_DEVICE "ICH9-SMB"
+ 
+-#define ICH9_A2_SMB_REVISION                    0x02
++#define ICH9_A2_SMB_REVISION                    0x71 // SMBus [0c05] | hw/i2c/smbus_ich9.c
+ #define ICH9_SMB_PI                             0x00
+ 
+ #define ICH9_SMB_SMBMBAR0                       0x10
 diff --git a/include/standard-headers/linux/qemu_fw_cfg.h b/include/standard-headers/linux/qemu_fw_cfg.h
-index cb93f66..fe34590 100644
+index cb93f66..0527126 100644
 --- a/include/standard-headers/linux/qemu_fw_cfg.h
 +++ b/include/standard-headers/linux/qemu_fw_cfg.h
-@@ -4,7 +4,7 @@
- 
- #include "standard-headers/linux/types.h"
- 
--#define FW_CFG_ACPI_DEVICE_ID	"QEMU0002"
-+#define FW_CFG_ACPI_DEVICE_ID	"UEFI0002"
- 
- /* selector key values for "well-known" fw_cfg entries */
- #define FW_CFG_SIGNATURE	0x00
 @@ -71,7 +71,7 @@ struct fw_cfg_file {
  #define FW_CFG_DMA_CTL_SELECT	0x08
  #define FW_CFG_DMA_CTL_WRITE	0x10
@@ -735,28 +757,15 @@ index cb93f66..fe34590 100644
  
  /* Control as first field allows for different structures selected by this
   * field, which might be useful in the future
-diff --git a/pc-bios/optionrom/optionrom.h b/pc-bios/optionrom/optionrom.h
-index 2e6e249..30fbaa1 100644
---- a/pc-bios/optionrom/optionrom.h
-+++ b/pc-bios/optionrom/optionrom.h
-@@ -43,7 +43,7 @@
- #define FW_CFG_DMA_CTL_SELECT  0x08
- #define FW_CFG_DMA_CTL_WRITE   0x10
- 
--#define FW_CFG_DMA_SIGNATURE 0x51454d5520434647ULL /* "QEMU CFG" */
-+#define FW_CFG_DMA_SIGNATURE 0x51434f4d20434647ULL /* "QCOM CFG" */
- 
- #define BIOS_CFG_DMA_ADDR_HIGH  0x514
- #define BIOS_CFG_DMA_ADDR_LOW   0x518
 diff --git a/target/i386/cpu.c b/target/i386/cpu.c
-index c6fd1dc..6427b85 100644
+index c6fd1dc..1c97fcc 100644
 --- a/target/i386/cpu.c
 +++ b/target/i386/cpu.c
 @@ -1005,6 +1005,7 @@ void x86_cpu_vendor_words2str(char *dst, uint32_t vendor1,
  #define TCG_7_2_EDX_FEATURES 0
  #define TCG_APM_FEATURES 0
  #define TCG_6_EAX_FEATURES CPUID_6_EAX_ARAT
-+#define TCG_6_ECX_FEATURES CPUID_6_ECX_APERFMPERF
++#define TCG_6_ECX_FEATURES 0
  #define TCG_XSAVE_FEATURES (CPUID_XSAVE_XSAVEOPT | CPUID_XSAVE_XGETBV1)
            /* missing:
            CPUID_XSAVE_XSAVEC, CPUID_XSAVE_XSAVES */
@@ -799,36 +808,12 @@ index c6fd1dc..6427b85 100644
      x86_cpu_adjust_feat_level(cpu, FEAT_7_0_ECX);
      x86_cpu_adjust_feat_level(cpu, FEAT_7_1_EAX);
      x86_cpu_adjust_feat_level(cpu, FEAT_7_1_ECX);
-@@ -9713,6 +9730,23 @@ void x86_cpu_expand_features(X86CPU *cpu, Error **errp)
-         env->cpuid_xlevel2 = env->cpuid_min_xlevel2;
-     }
- 
-+    /*
-+     * When running with an accelerator that exposes the host CPUID
-+     * directly (passthrough), limit the standard CPUID leaf to 0x1E so
-+     * the guest sees the same ceiling as "-cpu host,level=30".
-+     * This fixes BSODs in Windows when running nested virtualization
-+     * on newer Intel CPUs (12th generation+).
-+     */
-+    if (accel_uses_host_cpuid() && IS_INTEL_CPU(env) &&
-+        (cpu->hyperv_features || cpu->hyperv_passthrough)) {
-+        if (env->cpuid_min_level > 0x1E) {
-+            env->cpuid_min_level = 0x1E;
-+        }
-+        if (env->cpuid_level > 0x1E) {
-+            env->cpuid_level = 0x1E;
-+        }
-+    }
-+
-     if (kvm_enabled() && !kvm_hyperv_expand_features(cpu, errp)) {
-         return;
-     }
-@@ -10647,7 +10681,7 @@ static const Property x86_cpu_properties[] = {
+@@ -10647,7 +10664,7 @@ static const Property x86_cpu_properties[] = {
      DEFINE_PROP_BOOL("lmce", X86CPU, enable_lmce, false),
      DEFINE_PROP_BOOL("l3-cache", X86CPU, enable_l3_cache, true),
      DEFINE_PROP_BOOL("kvm-pv-enforce-cpuid", X86CPU, kvm_pv_enforce_cpuid,
 -                     false),
-+                     true),
++                     true), // Forces #GP fault on unsupported RDMSR/WRMSR for KVM paravirtual MSRs (0x4b564d00–0x4b564d08)
      DEFINE_PROP_BOOL("vmware-cpuid-freq", X86CPU, vmware_cpuid_freq, true),
      DEFINE_PROP_BOOL("tcg-cpuid", X86CPU, expose_tcg, true),
      DEFINE_PROP_BOOL("x-migrate-smi-count", X86CPU, migrate_smi_count,
