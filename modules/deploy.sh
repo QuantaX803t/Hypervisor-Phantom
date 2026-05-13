@@ -408,9 +408,9 @@ configure_xml() {
         # Documentation:
         #   - https://libvirt.org/formatdomain.html#power-management
         #
-
-        --xml "./pm/suspend-to-mem/@enabled=yes"  # CONCEALMENT: Enables S3 ACPI sleep state (suspend-to-RAM) support in the guest
-        --xml "./pm/suspend-to-disk/@enabled=yes" # CONCEALMENT: Enables S4 ACPI sleep state (suspend-to-disk/hibernate) support in the guest
+        
+        --pm "suspend_to_mem.enabled=yes"  # CONCEALMENT: Enables S3 ACPI sleep state (suspend-to-RAM) support in the guest
+        --pm "suspend_to_disk.enabled=yes" # CONCEALMENT: Enables S4 ACPI sleep state (suspend-to-disk/hibernate) support in the guest
 
 
 
