@@ -575,6 +575,8 @@ configure_xml() {
 
         --qemu-commandline="-smbios file=/opt/AutoVirt/firmware/smbios.bin"
 
+        --qemu-commandline="-overcommit cpu-pm=on" # For APERFMPERF MSRs
+
 
 
 
