@@ -347,7 +347,7 @@ configure_xml() {
         "${HYPERV_ARGS[@]}"
 
         --features "kvm.hidden.state=on"  # CONCEALMENT: Hide the KVM hypervisor from standard MSR based discovery (CPUID Bitset)
-        --features "pmu.state=off"        # CONCEALMENT: Disables the Performance Monitoring Unit (PMU)
+        #--features "pmu.state=off"        # CONCEALMENT: Disables the Performance Monitoring Unit (PMU)
         --features "vmport.state=off"     # CONCEALMENT: Disables the VMware I/O port backdoor (VMPort, 0x5658) in the guest | FYI: ACE AC looks for this
         --features "smm.state=on"         # Secure boot requires SMM feature enabled
         --features "msrs.unknown=fault"   # CONCEALMENT: Injects a #GP(0) into the guest on RDMSR/WRMSR to an unhandled/unknown MSR
