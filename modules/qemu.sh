@@ -127,7 +127,7 @@ patch_qemu() {
   fmtr::info "Applying dynamic modifications..."
   spoof_models
   spoof_acpi
-  #spoof_smbios
+  spoof_smbios
 }
 
 
@@ -277,9 +277,9 @@ spoof_acpi() {
 
 
 
-#spoof_smbios() {
-#  # TODO: Implement smbios.bin spoofer
-#}
+spoof_smbios() {
+  $ROOT_ESC python3 "resources/scripts/SMBIOS.py" -o "$OUT_DIR/firmware"
+}
 
 
 
