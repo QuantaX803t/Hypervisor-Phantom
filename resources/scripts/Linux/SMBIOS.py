@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-o", "--output", default="smbios.bin")
+args = parser.parse_args()
 
 def get_bytes(path):
     try: return Path(path).read_bytes()
@@ -24,4 +29,4 @@ for p in Path("/sys/firmware/dmi/entries/").glob("17-*/raw"):
             data = data.replace(s.lower(), b"00000000").replace(s.upper(), b"00000000")
 
 if data:
-    Path("smbios.bin").write_bytes(data)
+    Path(args.output).write_bytes(data)
