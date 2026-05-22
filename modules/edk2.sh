@@ -260,7 +260,7 @@ build_ovmf() {
     fmtr::fatal "edksetup.sh failed"; return 1;
   }
 
-  build -p OvmfPkg/OvmfPkgX64.dsc -a X64 -t GCC5 -b RELEASE -n 0 -s \
+  build -p OvmfPkg/OvmfPkgX64.dsc -a X64 -t GCC -b RELEASE -n 0 -s \
     -D SECURE_BOOT_ENABLE=TRUE -D SMM_REQUIRE=TRUE \
     -D TPM1_ENABLE=TRUE -D TPM2_ENABLE=TRUE &>>"$LOG_FILE" || {
       fmtr::fatal "OVMF build failed"; return 1;
@@ -268,7 +268,7 @@ build_ovmf() {
 
   # --- Phase 2: Variable Extraction & NVRAM Injection ---
   local efivars_json name guid path full_hex attr sep=""
-  local -r build_fv="Build/OvmfX64/RELEASE_GCC5/FV"
+  local -r build_fv="Build/OvmfX64/RELEASE_GCC/FV"
   local -r EFI_GLOBAL_VARIABLE=8be4df61-93ca-11d2-aa0d-00e098032b8c
   local -r EFI_IMAGE_SECURITY_DATABASE_GUID=d719b2cb-3d3a-4596-a3bc-dad00e67656f
   local -a keys=(
