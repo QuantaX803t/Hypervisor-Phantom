@@ -6,6 +6,7 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
 
 
+readonly ROOT_DIR="$(pwd)"
 readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
@@ -278,7 +279,7 @@ spoof_acpi() {
 
 
 spoof_smbios() {
-  $ROOT_ESC python3 "resources/scripts/SMBIOS.py" -o "$OUT_DIR/firmware"
+  $ROOT_ESC python3 "$ROOT_DIR/resources/scripts/Linux/SMBIOS.py" -o "$OUT_DIR/firmware/smbios.bin"
 }
 
 
