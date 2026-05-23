@@ -106,37 +106,4 @@ make distclean
 
 
 
---- 
-
-
-
-
-
-
-
-## SWTPM
-
-#### clone
-```sh
-git clone --depth=1 --branch "v0.10.1" "https://github.com/stefanberger/swtpm.git"
-```
-
-#### diff
-```sh
-git add .
-
-git diff HEAD > "v0.10.1.patch"
-```
-
-#### patch
-```sh
-git apply < "v0.10.1.patch"
-```
-
-
-
-
-
-
-
 ---
