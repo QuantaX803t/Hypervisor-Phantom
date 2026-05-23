@@ -46,17 +46,17 @@ git apply < "v11.0.0.patch"
 
 #### clone
 ```sh
-git clone --depth=1 --branch "edk2-stable202602" "https://github.com/tianocore/edk2.git"
+git clone --depth=1 --branch "edk2-stable202605" "https://github.com/tianocore/edk2.git"
 ```
 
 #### diff
 ```sh
-git diff HEAD > "edk2-stable202602.patch"
+git diff HEAD > "edk2-stable202605.patch"
 ```
 
 #### patch
 ```sh
-git apply < "edk2-stable202602.patch"
+git apply < "edk2-stable202605.patch"
 ```
 
 
