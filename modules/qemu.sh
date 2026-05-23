@@ -7,7 +7,6 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
 
 readonly ROOT_DIR="$(pwd)"
-readonly SRC_DIR="$(pwd)/src"
 readonly OUT_DIR="/opt/AutoVirt"
 
 readonly QEMU_URI="https://github.com/qemu/qemu.git"
@@ -91,7 +90,7 @@ REQUIRED_PKGS_Fedora=(
 ################################################################################
 acquire_qemu_source() {
   $ROOT_ESC mkdir -p "$OUT_DIR"/{emulator,firmware}
-  mkdir -p "$SRC_DIR" && cd "$SRC_DIR" || { fmtr::fatal "Failed to enter source dir: $SRC_DIR"; exit 1; }
+  mkdir -p "$ROOT_DIR/src" && cd "$ROOT_DIR/src" || { fmtr::fatal "Failed to enter source dir: $ROOT_DIR/src"; exit 1; }
 
   clone_repo() {
     fmtr::info "Cloning '$QEMU_TAG' from '$QEMU_URI'..."
@@ -277,9 +276,15 @@ spoof_acpi() {
 
 
 
-
 spoof_smbios() {
-  $ROOT_ESC python3 "$ROOT_DIR/resources/scripts/Linux/SMBIOS.py" -o "$OUT_DIR/firmware/smbios.bin"
+  fmtr::info "Generating SMBIOS binary..."
+
+  if $ROOT_ESC python3 "$ROOT_DIR/resources/scripts/Linux/SMBIOS.py" -o "$OUT_DIR/firmware/smbios.bin"; then
+    fmtr::log "Generated 'smbios.bin' to '$OUT_DIR/firmware'"
+  else
+    fmtr::error "Failed to generate 'smbios.bin'"
+    return 1
+  fi
 }
 
 
@@ -333,8 +338,8 @@ compile_qemu() {
 
 cleanup() {
   fmtr::info "Cleaning up..."
-  rm -rf "$SRC_DIR/$QEMU_TAG"
-  rmdir "$SRC_DIR" 2>/dev/null
+  rm -rf "$ROOT_DIR/src/$QEMU_TAG"
+  rmdir "$ROOT_DIR/src" 2>/dev/null
 }
 
 
