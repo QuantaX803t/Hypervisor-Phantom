@@ -19,7 +19,7 @@ if (u_txt := get_bytes("/sys/class/dmi/id/product_uuid").strip()):
     data = data.replace(b[3::-1] + b[5:3:-1] + b[7:5:-1] + b[8:], b"\xFF" * 16)
 
 # 3. Overwrite SN strings
-for name in ("product_serial", "board_serial", "chassis_serial"):
+for name in ("board_serial", "chassis_serial", "product_serial"):
     if val := get_bytes(f"/sys/class/dmi/id/{name}").strip():
         data = data.replace(val, b"To be filled by O.E.M.")
 
