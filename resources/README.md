@@ -37,7 +37,7 @@ amdgpu.sg_display=0
 
 - **Virtualization**
   - [QEMU’s documentation](https://www.qemu.org/docs/master/)
-    - [Man Page (Args)](https://www.qemu.org/docs/master/system/qemu-manpage.html)
+    - [Invocation](https://www.qemu.org/docs/master/system/invocation.html) | [Man Page (Args)](https://www.qemu.org/docs/master/system/qemu-manpage.html)
     - [Hyper-V Enlightenments](https://www.qemu.org/docs/master/system/i386/hyperv.html)
   - [KVM for x86 systems (Linux Kernel)](https://www.kernel.org/doc/html/next/virt/kvm/x86/index.html)
   - [libvirt - Domain XML format](https://libvirt.org/formatdomain.html)
