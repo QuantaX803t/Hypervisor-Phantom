@@ -7,8 +7,7 @@ source ./utils.sh || { echo "Failed to load utilities module!"; exit 1; }
 
 
 REQUIRED_PKGS_Arch=(
-  dnsmasq libvirt virt-manager swtpm
-  # qemu-base edk2-ovmf
+  dnsmasq libvirt virt-manager swtpm qemu-base edk2-ovmf
 )
 
 # EXPERIMENTAL
