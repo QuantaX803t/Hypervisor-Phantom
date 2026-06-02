@@ -457,7 +457,7 @@ configure_xml() {
         #   - https://libvirt.org/formatdomain.html#network-interfaces
         #
 
-        --network "network=default,model=e1000e,mac=$RANDOM_MAC"
+        --network "network=AutoVirt-Router,model=e1000e,mac=$RANDOM_MAC"
 
 
 
