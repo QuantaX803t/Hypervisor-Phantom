@@ -1,5 +1,5 @@
 # Set execution policy to bypass for the process
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+# RUN THIS: Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
 $downloadUrl     = "https://download.sysinternals.com/files/PSTools.zip"
 $tempDir         = "$env:TEMP\PSTools"
