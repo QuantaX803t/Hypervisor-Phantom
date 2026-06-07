@@ -2,7 +2,7 @@
 
 from pathlib import Path
 from uuid import UUID
-import argparse
+import argparse, os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--output", default="smbios.bin")
@@ -17,7 +17,8 @@ data = get_bytes("/sys/firmware/dmi/tables/smbios_entry_point") + get_bytes("/sy
 
 # 2. Overwrite UUID bytes
 if raw := get_bytes("/sys/class/dmi/id/product_uuid").strip():
-	data = data.replace(UUID(raw.decode()).bytes_le, b"\xFF" * 16)
+	data = data.replace(UUID(raw.decode()).bytes_le, os.urandom(16))
+	#data = data.replace(UUID(raw.decode()).bytes_le, b"\xFF" * 16)
 
 # 3. Overwrite SN strings
 for attr in ("board_serial", "chassis_serial", "product_serial"):
