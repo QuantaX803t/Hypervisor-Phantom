@@ -145,7 +145,7 @@ compile_and_inject_ovmf() {
 
   [ -d BaseTools/Build ] || { make -C BaseTools -j"$(nproc)" && source edksetup.sh; } &>>"$LOG_FILE" || { fmtr::fatal "Failed to build BaseTools"; return 1; }
 
-  build -a X64 -p OvmfPkg/OvmfPkgX64.dsc -b RELEASE -t GCC5 -n 0 -s \
+  build -a X64 -p OvmfPkg/OvmfPkgX64.dsc -b RELEASE -t GCC -n 0 -s \
     --define SECURE_BOOT_ENABLE=TRUE \
     --define TPM1_ENABLE=TRUE \
     --define TPM2_ENABLE=TRUE \
@@ -154,7 +154,7 @@ compile_and_inject_ovmf() {
   $ROOT_ESC mkdir -p "$OUT_DIR/firmware"
 
   for f in CODE VARS; do
-    $ROOT_ESC "$OUT_DIR/emulator/bin/qemu-img" convert -f raw -O qcow2 "Build/OvmfX64/RELEASE_GCC5/FV/OVMF_${f}.fd" "$OUT_DIR/firmware/OVMF_${f}.qcow2" || return 1
+    $ROOT_ESC "$OUT_DIR/emulator/bin/qemu-img" convert -f raw -O qcow2 "Build/OvmfX64/RELEASE_GCC/FV/OVMF_${f}.fd" "$OUT_DIR/firmware/OVMF_${f}.qcow2" || return 1
   done
 
   TEMP_DIR="$(mktemp -d)" || return 1
@@ -268,7 +268,7 @@ compile_and_inject_ovmf() {
 
 OVMF Build Args:
 ```
-build -a X64 -p OvmfPkg/OvmfPkgX64.dsc -b RELEASE -t GCC5 -n 0 -s \
+build -a X64 -p OvmfPkg/OvmfPkgX64.dsc -b RELEASE -t GCC -n 0 -s \
   --define SECURE_BOOT_ENABLE=TRUE \
   --define SMM_REQUIRE=TRUE \
   --define TPM1_ENABLE=TRUE \
