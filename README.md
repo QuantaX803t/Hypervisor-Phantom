@@ -18,7 +18,7 @@ This project automates complex Linux virtualization tasks.
 
 
 
-## 📖 Setup Instruction Guide
+## Instructions
 
 <details>
 <summary>Expand for details...</summary>
