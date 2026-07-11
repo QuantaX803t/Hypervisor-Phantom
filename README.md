@@ -2,16 +2,31 @@
 
 # AutoVirt
 
-This project automates complex Linux virtualization tasks.
+This project automates complex Linux virtualization tasks,
+including GPU passthrough setup, VM configuration, and VFIO binding.
 
 [![](https://dcbadge.limes.pink/api/server/https://discord.gg/hNVHChp7PX)](https://discord.gg/hNVHChp7PX)
 
 </div>
 
+---
 
+## Supported Distros
 
+| Distro | Status |
+|--------|--------|
+| Arch Linux / Manjaro / EndeavourOS / Garuda | Supported |
+| Debian / Ubuntu / Linux Mint / Pop!_OS | Experimental (`EXPERIMENTAL=1`) |
+| Fedora / CentOS / RHEL / Rocky | Experimental (`EXPERIMENTAL=1`) |
+| openSUSE / SLES | Experimental (`EXPERIMENTAL=1`) |
 
+## Prerequisites
 
+- A supported Linux distribution
+- CPU with virtualization extensions (VT-x / AMD-V)
+- IOMMU support enabled in BIOS (VT-d / AMD-Vi)
+- A secondary GPU for passthrough (recommended)
+- `git` installed
 ---
 
 
