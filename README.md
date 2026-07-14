@@ -8,11 +8,8 @@ This project automates complex Linux virtualization tasks.
 
 </div>
 
-
-
-
-
 ---
+
 
 
 
@@ -51,6 +48,31 @@ git fetch --all && git reset --hard origin/main
 ```
 
 </details>
+
+
+
+
+
+---
+
+## Supported Distros
+
+| Distro         | Status       |
+|----------------|--------------|
+| Arch based     | Supported    |
+| Debian based   | Experimental |
+| Fedora based   | Experimental |
+| openSUSE based | Experimental |
+
+## Prerequisites
+
+- A supported Linux distribution
+- CPU with virtualization extensions (VT-x / AMD-V)
+- IOMMU support enabled in UEFI/BIOS (VT-d / AMD-Vi)
+- A dGPU for passthrough (recommended)
+- `git` package installed
+
+
 
 
 
