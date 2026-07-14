@@ -11,23 +11,6 @@ including GPU passthrough setup, VM configuration, and VFIO binding.
 
 ---
 
-## Supported Distros
-
-| Distro | Status |
-|--------|--------|
-| Arch Linux / Manjaro / EndeavourOS / Garuda | Supported |
-| Debian / Ubuntu / Linux Mint / Pop!_OS | Experimental (`EXPERIMENTAL=1`) |
-| Fedora / CentOS / RHEL / Rocky | Experimental (`EXPERIMENTAL=1`) |
-| openSUSE / SLES | Experimental (`EXPERIMENTAL=1`) |
-
-## Prerequisites
-
-- A supported Linux distribution
-- CPU with virtualization extensions (VT-x / AMD-V)
-- IOMMU support enabled in BIOS (VT-d / AMD-Vi)
-- A secondary GPU for passthrough (recommended)
-- `git` installed
----
 
 
 
@@ -66,6 +49,31 @@ git fetch --all && git reset --hard origin/main
 ```
 
 </details>
+
+
+
+
+
+---
+
+## Supported Distros
+
+| Distro         | Status       |
+|----------------|--------------|
+| Arch based     | Supported    |
+| Debian based   | Experimental |
+| Fedora based   | Experimental |
+| openSUSE based | Experimental |
+
+## Prerequisites
+
+- A supported Linux distribution
+- CPU with virtualization extensions (VT-x / AMD-V)
+- IOMMU support enabled in UEFI/BIOS (VT-d / AMD-Vi)
+- A dGPU for passthrough (recommended)
+- `git` package installed
+
+
 
 
 
