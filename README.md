@@ -71,7 +71,7 @@ git fetch --all && git reset --hard origin/main
 - UEFI/BIOS Settings:
   - CPU virtualization extensions (VT-x / AMD-V)
   - IOMMU support (VT-d / AMD-Vi)
-  - **IMPORTANT** - Disable `Pre-boot DMA Protection`
+  - **IMPORTANT** - Disable `Pre-boot DMA Protection` (Needed for VFIO)
     - (*Change `IOMMU` from `[Auto]` to `[Enabled]` to find hidden setting*)
 - A dGPU for passthrough (recommended)
 
