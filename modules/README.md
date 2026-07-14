@@ -380,23 +380,24 @@ QEMU XML:
 <summary>Expand for details...</summary>
 
 - https://github.com/stefanberger/libtpms
-- https://github.com/stefanberger/swtpm
 
 ## Layer 1: libtpms (Runtime Identity)
 
 > What Windows reads via `TPM2_GetCapability` (`tpm.msc`, `Get-Tpm`, Device Manager)
 
-Edit [`src/tpm2/TPMCmd/Platform/src/VendorInfo.c`](https://github.com/stefanberger/libtpms/blob/master/src/tpm2/TPMCmd/Platform/src/VendorInfo.c):
+- [src/tpm2/TPMCmd/Platform/src/VendorInfo.c](https://github.com/stefanberger/libtpms/blob/master/src/tpm2/TPMCmd/Platform/src/VendorInfo.c)
 
-| Define | TPM Property | Default |
-|---|---|---|
-| `MANUFACTURER` | `TPM_PT_MANUFACTURER` | `"IBM"` |
-| `VENDOR_STRING_1` | `TPM_PT_VENDOR_STRING_1` | `"SW  "` |
-| `VENDOR_STRING_2` | `TPM_PT_VENDOR_STRING_2` | `" TPM"` |
-| `VENDOR_STRING_3` | `TPM_PT_VENDOR_STRING_3` | `"\0\0\0\0"` |
-| `VENDOR_STRING_4` | `TPM_PT_VENDOR_STRING_4` | `"\0\0\0\0"` |
-| `FIRMWARE_V1` | `TPM_PT_FIRMWARE_VERSION_1` | `0x20240125` |
-| `FIRMWARE_V2` | `TPM_PT_FIRMWARE_VERSION_2` | `0x00120000` |
+```c
+// In this sample platform, these are compile time constants, but are not required to be.
+#define MANUFACTURER    "IBM"
+#define VENDOR_STRING_1 "SW  "
+#define VENDOR_STRING_2 " TPM"
+#define VENDOR_STRING_3 "\0\0\0\0"
+#define VENDOR_STRING_4 "\0\0\0\0"
+#define FIRMWARE_V1     (0x20240125)
+#define FIRMWARE_V2     (0x00120000)
+#define MAX_SVN         255
+```
 
 ```bash
 git clone https://github.com/stefanberger/libtpms.git && cd libtpms
@@ -407,6 +408,8 @@ autoreconf -i && ./configure && make -j"$(nproc)"
 ```
 
 ## Layer 2: swtpm Certificates (EK & Platform certs)
+
+- https://github.com/stefanberger/swtpm
 
 ```bash
 swtpm_setup \
