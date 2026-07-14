@@ -2,8 +2,7 @@
 
 # AutoVirt
 
-This project automates complex Linux virtualization tasks,
-including GPU passthrough setup, VM configuration, and VFIO binding.
+This project automates complex Linux virtualization tasks.
 
 [![](https://dcbadge.limes.pink/api/server/https://discord.gg/hNVHChp7PX)](https://discord.gg/hNVHChp7PX)
 
