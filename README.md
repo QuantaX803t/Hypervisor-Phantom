@@ -71,10 +71,21 @@ git fetch --all && git reset --hard origin/main
 - UEFI/BIOS Settings:
   - CPU virtualization extensions (VT-x / AMD-V)
   - IOMMU support (VT-d / AMD-Vi)
-  - **IMPORTANT** - Disable `Pre-boot DMA Protection` (Needed for VFIO)
-    - (*Change `IOMMU` from `[Auto]` to `[Enabled]` to find hidden setting*)
 - A dGPU for passthrough (recommended)
 
+## Troubleshooting
+
+#### QEMU log
+```
+vfio 0000:01:00.0: failed to setup container for group 13: Failed to set group container: Invalid argument
+```
+#### dmesg log
+```
+vfio-pci 0000:01:00.0: Firmware has requested this device have a 1:1 IOMMU mapping, rejecting configuring the device without a 1:1 mapping. Contact your platform vendor.
+```
+
+- Disable `Pre-boot DMA Protection` (Needed for VFIO)
+  - (*Change `IOMMU` from `[Auto]` to `[Enabled]` to find hidden setting*)
 
 
 
