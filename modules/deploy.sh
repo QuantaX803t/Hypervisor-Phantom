@@ -408,10 +408,11 @@ configure_xml() {
         # Documentation:
         #   - https://libvirt.org/formatdomain.html#power-management
         #
+
+
         
         --pm "suspend_to_mem.enabled=yes"  # CONCEALMENT: Enables S3 ACPI sleep state (suspend-to-RAM) support in the guest
         --pm "suspend_to_disk.enabled=yes" # CONCEALMENT: Enables S4 ACPI sleep state (suspend-to-disk/hibernate) support in the guest
-
 
 
 
@@ -573,9 +574,11 @@ configure_xml() {
         #   - https://www.qemu.org/docs/master/system/qemu-manpage.html#hxtool-4
         #
 
-        --qemu-commandline="-smbios file=/opt/AutoVirt/firmware/smbios.bin"
-
-        --qemu-commandline="-overcommit cpu-pm=on" # For APERFMPERF MSRs
+        --qemu-commandline="-smbios file=/opt/AutoVirt/firmware/smbios.bin"            # SMBIOS binary blob
+        --qemu-commandline="-overcommit cpu-pm=on"                                     # For APERFMPERF MSRs
+        --qemu-commandline="-global ICH9-LPC.acpi-pci-hotplug-with-bridge-support=off" # ACPI PCI hotplug
+        --qemu-commandline="-global ICH9-LPC.x-smi-cpu-hotplug=off"                    # SMI-based CPU hotplug
+        --qemu-commandline="-global ICH9-LPC.x-smi-cpu-hotunplug=off"                  # SMI-based CPU hotunplug
 
 
 
