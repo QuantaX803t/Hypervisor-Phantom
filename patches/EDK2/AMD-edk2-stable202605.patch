@@ -70,7 +70,7 @@ index 5d7df5f..7ae1853 100644
    ## Indicates if to set NX for stack.<BR><BR>
    #  For the DxeIpl and the DxeCore are both X64, set NX for stack feature also require PcdDxeIplBuildPageTables be TRUE.<BR>
 diff --git a/OvmfPkg/Include/IndustryStandard/Q35MchIch9.h b/OvmfPkg/Include/IndustryStandard/Q35MchIch9.h
-index f8e2b4f..4d34fea 100644
+index f8e2b4f..2379210 100644
 --- a/OvmfPkg/Include/IndustryStandard/Q35MchIch9.h
 +++ b/OvmfPkg/Include/IndustryStandard/Q35MchIch9.h
 @@ -19,7 +19,7 @@
@@ -82,6 +82,19 @@ index f8e2b4f..4d34fea 100644
  
  //
  // B/D/F/Type: 0/0/0/PCI
+@@ -87,10 +87,10 @@
+ // B/D/F/Type: 0/0x1f/0/PCI
+ //
+ #define POWER_MGMT_REGISTER_Q35(Offset) \
+-  PCI_LIB_ADDRESS (0, 0x1f, 0, (Offset))
++  PCI_LIB_ADDRESS (0, 0x14, 3, (Offset))   // 0, ICH9_LPC_DEV, ICH9_LPC_FUNC | QEMU: include/hw/southbridge/ich9.h
+ 
+ #define POWER_MGMT_REGISTER_Q35_EFI_PCI_ADDRESS(Offset) \
+-  EFI_PCI_ADDRESS (0, 0x1f, 0, (Offset))
++  EFI_PCI_ADDRESS (0, 0x14, 3, (Offset))   // 0, ICH9_LPC_DEV, ICH9_LPC_FUNC | QEMU: include/hw/southbridge/ich9.h
+ 
+ #define ICH9_PMBASE       0x40
+ #define ICH9_PMBASE_MASK  (BIT15 | BIT14 | BIT13 | BIT12 | BIT11 |           \
 diff --git a/OvmfPkg/Include/IndustryStandard/QemuPciBridgeCapabilities.h b/OvmfPkg/Include/IndustryStandard/QemuPciBridgeCapabilities.h
 index e6657c0..a31630f 100644
 --- a/OvmfPkg/Include/IndustryStandard/QemuPciBridgeCapabilities.h
