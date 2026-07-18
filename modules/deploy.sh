@@ -56,58 +56,8 @@ system_info() {
     done
 
     # ISO Selection
-    DOWNLOADS_DIR="/home/$USER/Downloads"
+    DOWNLOADS_DIR="/var/lib/libvirt/images"
     ISO_PATH=""
-
-    ensure_permissions() {
-        local target_path="$1"
-        local username="libvirt-qemu"
-        local dirs_to_check=()
-
-        local current_dir="$target_path"
-        while [[ "$current_dir" != "/" && "$current_dir" != "/home" ]]; do
-            dirs_to_check+=("$current_dir")
-            current_dir="$(dirname "$current_dir")"
-        done
-
-        for ((i=${#dirs_to_check[@]}-1; i>=0; i--)); do
-            local dir="${dirs_to_check[$i]}"
-
-            # Check if libvirt-qemu already has access via ACL
-            if getfacl "$dir" 2>/dev/null | grep -q "user:$username:.*x"; then
-                continue
-            fi
-
-            # Check if directory is already world-executable
-            if [[ -x "$dir" ]]; then
-                continue
-            fi
-
-            # Try setting ACL first (preferred - more granular)
-            if command -v setfacl &> /dev/null; then
-                if $ROOT_ESC setfacl --modify "user:$username:x" "$dir" 2>/dev/null; then
-                    fmtr::info "Set ACL execute permission for $username on $dir"
-                    continue
-                fi
-            fi
-
-            # Fallback to chmod o+x
-            if $ROOT_ESC chmod o+x "$dir" 2>/dev/null; then
-                fmtr::info "Set world-execute permission on $dir"
-                continue
-            fi
-
-            fmtr::warn "Failed to set permissions on $dir"
-            return 1
-        done
-
-        return 0
-    }
-
-    if ! ensure_permissions "$DOWNLOADS_DIR"; then
-        fmtr::fatal "Failed to set proper permissions for libvirt-qemu on $DOWNLOADS_DIR or its parent directories."
-        exit 1
-    fi
 
     mapfile -d '' -t ISO_FILES < <(find "$DOWNLOADS_DIR" -maxdepth 1 -type f -iname '*.iso' -print0 | sort -z)
 
