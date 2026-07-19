@@ -49,9 +49,9 @@ detect_bootloader() {
 
     # ── systemd-boot Bootloader ──────────────────────────────────────────
     for dir in "${SDBOOT_CONF_LOCATIONS[@]}"; do
-        if [[ -d $dir ]]; then
+        if [[ -d "$dir" ]]; then
             BOOTLOADER_TYPE=systemd-boot
-            BOOTLOADER_CONFIG=$(find "$dir" -maxdepth 1 -type f -name '*.conf' ! -name '*-fallback.conf' -print -quit)
+            BOOTLOADER_CONFIG=$($ROOT_ESC find "$dir" -maxdepth 1 -type f -name '*.conf' ! -name '*-fallback.conf' -print -quit)
             [[ -z "$BOOTLOADER_CONFIG" ]] && {
                 fmtr::warn "systemd-boot entry directory found ($dir) but contains no config files."
                 continue
@@ -243,7 +243,7 @@ configure_bootloader() {
                 s/[[:space:]]+/ /g;
             }" "$BOOTLOADER_CONFIG"
 
-            if ! grep -E "${LIMINE_ENTRY_REGEX}" "$BOOTLOADER_CONFIG" | grep -q "${kernel_opts[1]}"; then
+            if ! grep -Eq "${LIMINE_ENTRY_REGEX}.*${kernel_opts[1]}" "$BOOTLOADER_CONFIG"; then
                 $ROOT_ESC sed -E -i "/${LIMINE_ENTRY_REGEX}/ s/\"$/ ${kernel_opts_str}\"/" "$BOOTLOADER_CONFIG"
                 fmtr::log "Appended VFIO kernel opts to all Limine kernel entries."
             else
