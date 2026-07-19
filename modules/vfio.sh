@@ -51,12 +51,21 @@ detect_bootloader() {
     for dir in "${SDBOOT_CONF_LOCATIONS[@]}"; do
         if [[ -d "$dir" ]]; then
             BOOTLOADER_TYPE=systemd-boot
+
             BOOTLOADER_CONFIG=$($ROOT_ESC find "$dir" -maxdepth 1 -type f -name '*.conf' ! -name '*-fallback.conf' -print -quit)
-            [[ -z "$BOOTLOADER_CONFIG" ]] && {
-                fmtr::warn "systemd-boot entry directory found ($dir) but contains no config files."
-                continue
-            }
-            return 0
+
+            if [[ -n "$BOOTLOADER_CONFIG" ]]; then
+                return 0
+            fi
+
+            # UKI-based systemd-boot
+            if [[ -f /etc/kernel/cmdline ]] && compgen -G "/boot/EFI/Linux/*.efi" > /dev/null; then
+                BOOTLOADER_CONFIG="/etc/kernel/cmdline"
+                return 0
+            fi
+
+            fmtr::warn "systemd-boot detected but no loader entries or UKI cmdline found."
+            continue
         fi
     done
 
@@ -89,11 +98,25 @@ revert_vfio() {
             }' "$BOOTLOADER_CONFIG"
             ;;
         systemd-boot)
-            $ROOT_ESC sed -E -i "/^options / {
-                s/$VFIO_KERNEL_OPTS_REGEX//g;
-                s/[[:space:]]+/ /g;
-                s/[[:space:]]+$//;
-            }" "$BOOTLOADER_CONFIG"
+            if [[ "$BOOTLOADER_CONFIG" == "/etc/kernel/cmdline" ]]; then
+                # UKI-based systemd-boot
+                $ROOT_ESC sed -E -i "
+                    s/$VFIO_KERNEL_OPTS_REGEX//g;
+                    s/[[:space:]]+/ /g;
+                    s/[[:space:]]+$//;
+                " "$BOOTLOADER_CONFIG"
+
+                fmtr::log "Removed VFIO kernel opts from UKI cmdline: $BOOTLOADER_CONFIG"
+            else
+                # Traditional systemd-boot entry
+                $ROOT_ESC sed -E -i "/^options / {
+                    s/$VFIO_KERNEL_OPTS_REGEX//g;
+                    s/[[:space:]]+/ /g;
+                    s/[[:space:]]+$//;
+                }" "$BOOTLOADER_CONFIG"
+
+                fmtr::log "Removed VFIO kernel opts from systemd-boot entry: $BOOTLOADER_CONFIG"
+            fi
             ;;
         limine)
             $ROOT_ESC sed -E -i "/${LIMINE_ENTRY_REGEX}/ {
@@ -117,52 +140,45 @@ configure_vfio() {
     local dev bdf desc sel target_bdf vendor_id device_id bad=0
     local -a gpus=() badf=() iommu_ids=()
 
-    # Discover GPUs
-    local -A lspci_map=()
+    # Discover i/dGPUs
     while IFS= read -r line; do
-        lspci_map["${line%% *}"]="$line"
+        bdf=${line%% *}
+        [[ $(<"/sys/bus/pci/devices/$bdf/class") == 0x03* ]] || continue
+        desc=${line##*[}; desc=${desc%%]*}
+        gpus+=("$bdf|$desc")
     done < <(lspci -D 2>/dev/null)
 
-    for dev in /sys/bus/pci/devices/*; do
-        read -r dev_class < "$dev/class"
-        [[ $dev_class == 0x03* ]] || continue
-        bdf=${dev##*/}
-        desc=${lspci_map[$bdf]:-}
-        [[ -n "$desc" ]] || continue
-        desc=${desc##*[}; desc=${desc%%]*}
-        gpus+=("$bdf|$desc")
-    done
-
-    (( ${#gpus[@]} )) || { fmtr::error "No GPUs detected!"; return 1; }
-    (( ${#gpus[@]} == 1 )) && fmtr::warn "Only one GPU detected! Passing it through will leave the host without display output."
+    local gpu_count=${#gpus[@]}
+    (( gpu_count )) || { fmtr::error "No GPUs detected!"; return 1; }
+    (( gpu_count == 1 )) && fmtr::warn "Only one GPU detected! Passing it through will leave the host without display output."
 
     # GPU selection
-    local select_prompt
+    local select_prompt i
     select_prompt=$(fmtr::ask 'Select device number: ')
     while :; do
-        for dev in "${!gpus[@]}"; do printf '\n  %d) %s\n' "$((dev+1))" "${gpus[dev]#*|}"; done
+        i=0
+        for dev in "${gpus[@]}"; do printf '\n  %d) %s\n' "$((++i))" "${dev#*|}"; done
         read -rp "$select_prompt" sel
-        (( sel >= 1 && sel <= ${#gpus[@]} )) 2>/dev/null && break
+        (( sel >= 1 && sel <= gpu_count )) 2>/dev/null && break
         fmtr::error "Invalid selection. Please choose a valid number."
     done
 
     target_bdf="${gpus[sel-1]%%|*}"
-    local iommu_group_path
-    iommu_group_path=$(readlink -f "/sys/bus/pci/devices/$target_bdf/iommu_group")
-    local iommu_group=${iommu_group_path##*/}
+    local iommu_group=$(readlink "/sys/bus/pci/devices/$target_bdf/iommu_group")
+    iommu_group=${iommu_group##*/}
 
     # Collect device IDs & validate IOMMU group isolation
-    local target_vendor
+    local target_vendor prefix="${target_bdf%.*}"
     for dev in "/sys/kernel/iommu_groups/$iommu_group/devices/"*; do
         bdf=${dev##*/}
-        read -r vendor_id < "$dev/vendor" || continue
-        read -r device_id < "$dev/device" || continue
+        vendor_id=$(<"$dev/vendor") device_id=$(<"$dev/device")
         iommu_ids+=("${vendor_id#0x}:${device_id#0x}")
-        [[ $bdf == "$target_bdf" ]] && target_vendor="$vendor_id"
-        [[ $bdf == "${target_bdf%.*}".* ]] || { bad=1; badf+=("$bdf"); }
+        [[ $bdf == "$target_bdf" ]] && target_vendor=$vendor_id
+        [[ $bdf == "$prefix".* ]] || { bad=1; badf+=("$bdf"); }
     done
 
     if (( bad )); then
+        local bad_devs
         printf -v bad_devs '  [%s]\n' "${badf[@]}"
         fmtr::error "Detected poor IOMMU grouping! IOMMU group #$iommu_group contains:\n\n${bad_devs}"
         fmtr::warn "VFIO PT requires full group isolation. Possible solutions:
@@ -174,10 +190,9 @@ configure_vfio() {
 
     # Write VFIO config
     fmtr::log "Modifying VFIO config: $VFIO_CONF_PATH"
-
     {
         printf 'options vfio-pci ids=%s disable_vga=1\n' "$VFIO_PCI_IDS"
-        for soft in ${GPU_DRIVERS[$target_vendor]:-}; do printf 'softdep %s pre: vfio-pci\n' "$soft"; done
+        printf 'softdep %s pre: vfio-pci\n' ${GPU_DRIVERS[$target_vendor]:-}
     } | $ROOT_ESC tee "$VFIO_CONF_PATH" >> "$LOG_FILE"
 
     # sudo sed -i 's/^MODULES=()$/MODULES=(vfio vfio_iommu_type1 vfio_pci)/' /etc/mkinitcpio.conf
@@ -222,17 +237,35 @@ configure_bootloader() {
         systemd-boot)
             fmtr::log "Modifying systemd-boot config: $BOOTLOADER_CONFIG"
 
-            $ROOT_ESC sed -E -i "/^options / {
-                s/$VFIO_KERNEL_OPTS_REGEX//g;
-                s/[[:space:]]+/ /g;
-                s/[[:space:]]+$//;
-            }" "$BOOTLOADER_CONFIG"
+            if [[ "$BOOTLOADER_CONFIG" == "/etc/kernel/cmdline" ]]; then
+                # UKI-based systemd-boot
+                $ROOT_ESC sed -E -i "
+                    s/$VFIO_KERNEL_OPTS_REGEX//g;
+                    s/[[:space:]]+/ /g;
+                    s/[[:space:]]+$//;
+                " "$BOOTLOADER_CONFIG"
 
-            if ! grep -q -E "^options .*${kernel_opts[1]}" "$BOOTLOADER_CONFIG"; then
-                $ROOT_ESC sed -E -i -e "/^options / s/$/ ${kernel_opts_str}/" "$BOOTLOADER_CONFIG"
-                fmtr::log "Appended VFIO kernel opts to systemd-boot config."
+                if ! grep -q "${kernel_opts[1]}" "$BOOTLOADER_CONFIG"; then
+                    $ROOT_ESC sed -E -i "s|$| ${kernel_opts_str}|" "$BOOTLOADER_CONFIG"
+                    fmtr::log "Appended VFIO kernel opts to UKI cmdline."
+                else
+                    fmtr::log "VFIO kernel opts already present in UKI cmdline. Skipping append."
+                fi
+
             else
-                fmtr::log "VFIO kernel opts already present in systemd-boot config. Skipping append."
+                # Traditional systemd-boot entry
+                $ROOT_ESC sed -E -i "/^options / {
+                    s/$VFIO_KERNEL_OPTS_REGEX//g;
+                    s/[[:space:]]+/ /g;
+                    s/[[:space:]]+$//;
+                }" "$BOOTLOADER_CONFIG"
+
+                if ! grep -q -E "^options .*${kernel_opts[1]}" "$BOOTLOADER_CONFIG"; then
+                    $ROOT_ESC sed -E -i -e "/^options / s/$/ ${kernel_opts_str}/" "$BOOTLOADER_CONFIG"
+                    fmtr::log "Appended VFIO kernel opts to systemd-boot config."
+                else
+                    fmtr::log "VFIO kernel opts already present in systemd-boot config. Skipping append."
+                fi
             fi
             ;;
         limine)
