@@ -143,9 +143,9 @@ patch_ovmf() {
   }
 
   BIOS_VENDOR="$(</sys/class/dmi/id/bios_vendor)"
+  BIOS_REVISION="$(uhex 4 "$(</sys/class/dmi/id/bios_release)")"
   BIOS_VERSION="$(</sys/class/dmi/id/bios_version)"
   BIOS_DATE="$(</sys/class/dmi/id/bios_date)"
-  BIOS_REVISION="$(</sys/class/dmi/id/bios_release)"
 
   t=/sys/firmware/acpi/tables/FACP
 
