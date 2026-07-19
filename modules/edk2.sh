@@ -23,7 +23,7 @@ REQUIRED_PKGS_Arch=(
   base-devel nasm acpica
 
   # script dependencies
-  git virt-firmware
+  git virt-firmware dmidecode
 )
 
 # EXPERIMENTAL
