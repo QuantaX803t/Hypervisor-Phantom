@@ -167,7 +167,7 @@ patch_ovmf() {
     -e 's@(PcdFirmwareRevision)\|0x00010000\|@\1|'"$BIOS_REVISION"'|@' \
     -e 's@(PcdFirmwareVersionString)\|L""\|@\1|L"'"$BIOS_VERSION"'"|@' \
     -e 's@(PcdFirmwareReleaseDateString)\|L""\|@\1|L"'"$BIOS_DATE"'"|@' \
-    -e 's@(PcdAcpiDefaultOemId)\|"INTEL "\|@\1|"'$OEMID'"|@' \
+    -e 's@(PcdAcpiDefaultOemId)\|"INTEL "\|@\1|'"$OEMID"'|@' \
     -e 's@(PcdAcpiDefaultOemTableId)\|0x20202020324B4445\|@\1|'"$OEM_Table_ID"'|@' \
     -e 's@(PcdAcpiDefaultOemRevision)\|0x00000002\|@\1|'"$OEM_Revision"'|@' \
     -e 's@(PcdAcpiDefaultCreatorId)\|0x20202020\|@\1|'"$Creator_ID"'|@' \
