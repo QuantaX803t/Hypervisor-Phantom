@@ -45,6 +45,10 @@ configure_system_installation() {
       fi
   done
 
+  # Uncomment & set user/group in libvirt's qemu.conf
+  $ROOT_ESC sed -i -E "s/^#(user|group) = \".*\"/\1 = \"$target_user\"/" /etc/libvirt/qemu.conf
+  fmtr::info "qemu.conf user/group set to '$target_user'"
+
   # Enable (autostart) & start libvirt service
   if ! systemctl is-active --quiet libvirtd; then
       $ROOT_ESC systemctl enable --now libvirtd
@@ -78,10 +82,6 @@ EOF
   else
       fmtr::info "'AutoVirt-Router' network already exists. *skipping*"
   fi
-
-  # Uncomment & set user/group in libvirt's qemu.conf
-  $ROOT_ESC sed -i -E "s/^#(user|group) = \".*\"/\1 = \"$target_user\"/" /etc/libvirt/qemu.conf
-  fmtr::info "qemu.conf user/group set to '$target_user'"
 
   # Enable VMM XML editor (GTK Application)
   gsettings set org.virt-manager.virt-manager xmleditor-enabled true
