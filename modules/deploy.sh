@@ -540,7 +540,7 @@ configure_xml() {
         #
 
         --noautoconsole
-        --wait
+        --wait 0
     )
     # https://man.archlinux.org/man/virt-install.1
     # sudo virt-install --features help
