@@ -33,7 +33,7 @@ git apply < "v11.0.2.patch"
 ```
 
 #### (re)build & install
-```
+```sh
 sudo ninja -C build install
 ```
 
