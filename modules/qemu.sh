@@ -305,23 +305,46 @@ spoof_smbios() {
 compile_qemu() {
   fmtr::info "Configuring QEMU..."
 
-  ./configure --target-list=x86_64-softmmu \
-              --prefix="$OUT_DIR/emulator" \
-              --enable-libusb \
-              --enable-usb-redir \
-              --enable-spice \
-              --enable-spice-protocol \
-              --disable-werror \
-              --disable-docs &>> "$LOG_FILE" \
-  || { fmtr::error "Configuration failed; Check $LOG_FILE"; return 1; }
+  ./configure \
+      --target-list=x86_64-softmmu --prefix="$OUT_DIR/emulator" \
+      --without-default-features \
+      \
+      --enable-kvm --enable-linux-io-uring \
+      \
+      --enable-pixman --enable-opengl --enable-sdl \
+      --enable-spice --enable-spice-protocol \
+      \
+      --enable-libusb --enable-libudev \
+      \
+      --enable-pipewire --enable-tpm --enable-numa \
+      --enable-seccomp --enable-zstd \
+      \
+      --enable-tools --enable-modules \
+      \
+      --disable-docs --disable-werror \
+      --disable-linux-user --disable-bsd-user --disable-tcg \
+      \
+      --extra-cflags="-g0" --extra-ldflags="-s" \
+      &>> "$LOG_FILE"
+
+  if [[ $? -ne 0 ]]; then
+    fmtr::error "Configuration failed; Check $LOG_FILE"
+    return 1
+  fi
 
   fmtr::info "Compiling QEMU..."
+  ninja -C build -j"$(nproc)" &>> "$LOG_FILE"
+  if [[ $? -ne 0 ]]; then
+    fmtr::error "Compilation failed; Check $LOG_FILE"
+    return 1
+  fi
 
-  make -j"$(nproc)" &>> "$LOG_FILE" \
-  || { fmtr::error "Compilation failed; Check $LOG_FILE"; return 1; }
-
-  $ROOT_ESC make install &>> "$LOG_FILE" \
-  || { fmtr::error "Install failed; Check $LOG_FILE"; return 1; }
+  fmtr::info "Installing QEMU..."
+  $ROOT_ESC ninja -C build install &>> "$LOG_FILE"
+  if [[ $? -ne 0 ]]; then
+    fmtr::error "Install failed; Check $LOG_FILE"
+    return 1
+  fi
 
   fmtr::log "Installed QEMU at '$OUT_DIR/emulator'"
 }
