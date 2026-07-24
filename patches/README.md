@@ -17,19 +17,19 @@
 
 #### clone
 ```sh
-git clone --depth=1 --branch "v11.0.0" "https://github.com/qemu/qemu.git"
+git clone --depth=1 --branch "v11.0.2" "https://github.com/qemu/qemu.git"
 ```
 
 #### diff
 ```sh
 git add .
 
-git diff HEAD > "v11.0.0.patch"
+git diff HEAD > "v11.0.2.patch"
 ```
 
 #### patch
 ```sh
-git apply < "v11.0.0.patch"
+git apply < "v11.0.2.patch"
 ```
 
 
