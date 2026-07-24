@@ -32,6 +32,10 @@ git diff HEAD > "v11.0.2.patch"
 git apply < "v11.0.2.patch"
 ```
 
+#### (re)build & install
+```
+sudo ninja -C build install
+```
 
 
 
