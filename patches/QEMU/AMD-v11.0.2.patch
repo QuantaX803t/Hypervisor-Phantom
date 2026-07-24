@@ -1,5 +1,5 @@
 diff --git a/hw/acpi/aml-build.c b/hw/acpi/aml-build.c
-index 4b37405..9fb599c 100644
+index 4b37405..1506879 100644
 --- a/hw/acpi/aml-build.c
 +++ b/hw/acpi/aml-build.c
 @@ -1722,15 +1722,14 @@ void acpi_table_begin(AcpiTable *desc, GArray *array)
@@ -40,7 +40,7 @@ index 4b37405..9fb599c 100644
  
      /* Hypervisor Vendor Identity */
 -    build_append_padded_str(tbl, "QEMU", 8, '\0');
-+    build_append_padded_str(tbl, "", 8, '\0');
++    build_append_int_noprefix(tbl, 0, 8);
  
      /* TODO: extra fields need to be added to support revisions above rev6 */
      assert(f->rev == 6);
@@ -271,7 +271,7 @@ index 51513e7..0563f5f 100644
      k->revision = ICH9_A2_SMB_REVISION;
      k->class_id = PCI_CLASS_SERIAL_SMBUS;
 diff --git a/hw/i386/acpi-build.c b/hw/i386/acpi-build.c
-index f622b91..48725bb 100644
+index f622b91..bc4b0e8 100644
 --- a/hw/i386/acpi-build.c
 +++ b/hw/i386/acpi-build.c
 @@ -162,8 +162,8 @@ static void init_common_fadt_data(MachineState *ms, Object *o,
@@ -302,7 +302,7 @@ index f622b91..48725bb 100644
      if (i440fx) {
          sb_scope = aml_scope("_SB");
          dev = aml_device("PCI0");
-@@ -895,6 +894,68 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
+@@ -895,6 +894,36 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
          build_piix4_pci0_int(dsdt);
      } else if (q35) {
          sb_scope = aml_scope("_SB");
@@ -311,67 +311,35 @@ index f622b91..48725bb 100644
 +         * Emulate Windows ACPI OSYS/_OSI logic in DSDT.
 +         * Adds Windows 2001/2006/2009/2012/2013/2015.
 +         */
++        static const struct {
++            const char *osi;
++            uint32_t    osys;
++        } win_osi[] = {
++            { "Windows 2001",     0x07D1 },
++            { "Windows 2001 SP1", 0x07D1 },
++            { "Windows 2001 SP2", 0x07D2 },
++            { "Windows 2001.1",   0x07D3 },
++            { "Windows 2006",     0x07D6 },
++            { "Windows 2009",     0x07D9 },
++            { "Windows 2012",     0x07DC },
++            { "Windows 2013",     0x07DD },
++            { "Windows 2015",     0x07DF },
++        };
 +
 +        aml_append(sb_scope, aml_name_decl("OSYS", aml_int(0x03E8)));
 +
-+        Aml *osi = aml_if(
-+            aml_equal(aml_call1("_OSI", aml_string("Windows 2001")), aml_int(1))
-+        );
-+        aml_append(osi, aml_store(aml_int(0x07D1), aml_name("OSYS")));
-+        aml_append(sb_scope, osi);
-+
-+        osi = aml_if(
-+            aml_equal(aml_call1("_OSI", aml_string("Windows 2001 SP1")), aml_int(1))
-+        );
-+        aml_append(osi, aml_store(aml_int(0x07D1), aml_name("OSYS")));
-+        aml_append(sb_scope, osi);
-+
-+        osi = aml_if(
-+            aml_equal(aml_call1("_OSI", aml_string("Windows 2001 SP2")), aml_int(1))
-+        );
-+        aml_append(osi, aml_store(aml_int(0x07D2), aml_name("OSYS")));
-+        aml_append(sb_scope, osi);
-+
-+        osi = aml_if(
-+            aml_equal(aml_call1("_OSI", aml_string("Windows 2001.1")), aml_int(1))
-+        );
-+        aml_append(osi, aml_store(aml_int(0x07D3), aml_name("OSYS")));
-+        aml_append(sb_scope, osi);
-+
-+        osi = aml_if(
-+            aml_equal(aml_call1("_OSI", aml_string("Windows 2006")), aml_int(1))
-+        );
-+        aml_append(osi, aml_store(aml_int(0x07D6), aml_name("OSYS")));
-+        aml_append(sb_scope, osi);
-+
-+        osi = aml_if(
-+            aml_equal(aml_call1("_OSI", aml_string("Windows 2009")), aml_int(1))
-+        );
-+        aml_append(osi, aml_store(aml_int(0x07D9), aml_name("OSYS")));
-+        aml_append(sb_scope, osi);
-+
-+        osi = aml_if(
-+            aml_equal(aml_call1("_OSI", aml_string("Windows 2012")), aml_int(1))
-+        );
-+        aml_append(osi, aml_store(aml_int(0x07DC), aml_name("OSYS")));
-+        aml_append(sb_scope, osi);
-+
-+        osi = aml_if(
-+            aml_equal(aml_call1("_OSI", aml_string("Windows 2013")), aml_int(1))
-+        );
-+        aml_append(osi, aml_store(aml_int(0x07DD), aml_name("OSYS")));
-+        aml_append(sb_scope, osi);
-+
-+        osi = aml_if(
-+            aml_equal(aml_call1("_OSI", aml_string("Windows 2015")), aml_int(1))
-+        );
-+        aml_append(osi, aml_store(aml_int(0x07DF), aml_name("OSYS")));
-+        aml_append(sb_scope, osi);
++        for (unsigned n = 0; n < ARRAY_SIZE(win_osi); n++) {
++            Aml *osi = aml_if(aml_equal(
++                aml_call1("_OSI", aml_string(win_osi[n].osi)), aml_int(1)));
++            aml_append(osi, aml_store(aml_int(win_osi[n].osys),
++                                      aml_name("OSYS")));
++            aml_append(sb_scope, osi);
++        }
 +
          dev = aml_device("PCI0");
          aml_append(dev, aml_name_decl("_HID", aml_eisaid("PNP0A08")));
          aml_append(dev, aml_name_decl("_CID", aml_eisaid("PNP0A03")));
-@@ -961,22 +1022,6 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
+@@ -961,22 +990,6 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
      }
      aml_append(dsdt, scope);
  
@@ -394,7 +362,7 @@ index f622b91..48725bb 100644
  
      crs_range_set_init(&crs_range_set);
      bus = PC_MACHINE(machine)->pcibus;
-@@ -1127,9 +1172,9 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
+@@ -1127,9 +1140,9 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
      aml_append(scope, aml_name_decl("_CRS", crs));
  
      /* reserve GPE0 block resources */
@@ -406,7 +374,7 @@ index f622b91..48725bb 100644
      /* device present, functioning, decoding, not shown in UI */
      aml_append(dev, aml_name_decl("_STA", aml_int(0xB)));
      crs = aml_resource_template();
-@@ -1182,12 +1227,6 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
+@@ -1182,12 +1195,6 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
      aml_append(scope, aml_name_decl("_S5", pkg));
      aml_append(dsdt, scope);
  
@@ -419,7 +387,7 @@ index f622b91..48725bb 100644
  
      sb_scope = aml_scope("\\_SB");
      {
-@@ -2075,8 +2114,6 @@ void acpi_build(AcpiBuildTables *tables, MachineState *machine)
+@@ -2075,8 +2082,6 @@ void acpi_build(AcpiBuildTables *tables, MachineState *machine)
                         x86ms->oem_id, x86ms->oem_table_id, &pcms->cxl_devices_state);
      }
  
@@ -819,7 +787,7 @@ index 16034aa..8c8eac6 100644
  #define PCI_VENDOR_ID_XEN                0x5853
  #define PCI_DEVICE_ID_XEN_PLATFORM       0x0001
 diff --git a/include/hw/southbridge/ich9.h b/include/hw/southbridge/ich9.h
-index 2c35dd0..bb29205 100644
+index 2c35dd0..8616021 100644
 --- a/include/hw/southbridge/ich9.h
 +++ b/include/hw/southbridge/ich9.h
 @@ -125,10 +125,10 @@ struct ICH9LPCState {
@@ -829,7 +797,7 @@ index 2c35dd0..bb29205 100644
 -#define ICH9_LPC_DEV                            31
 -#define ICH9_LPC_FUNC                           0
 +#define ICH9_LPC_DEV                            20
-+#define ICH9_LPC_FUNC                           3
++#define ICH9_LPC_FUNC                           0 // TODO: If not "0" bad things happen.
  
 -#define ICH9_A2_LPC_REVISION                    0x2
 +#define ICH9_A2_LPC_REVISION                    0x51 // ISA bridge [0601] | hw/isa/lpc_ich9.c
